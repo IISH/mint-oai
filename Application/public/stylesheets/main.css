@@ -1,0 +1,69 @@
+body {
+
+}
+
+.gradient{
+background: #cedce7; /* Old browsers */
+background: -moz-linear-gradient(top, #cedce7 0%, #dcd8cf 93%); /* FF3.6+ */
+background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#cedce7), color-stop(93%,#dcd8cf)); /* Chrome,Safari4+ */
+background: -webkit-linear-gradient(top, #cedce7 0%,#dcd8cf 93%); /* Chrome10+,Safari5.1+ */
+background: -o-linear-gradient(top, #cedce7 0%,#dcd8cf 93%); /* Opera 11.10+ */
+background: -ms-linear-gradient(top, #cedce7 0%,#dcd8cf 93%); /* IE10+ */
+background: linear-gradient(to bottom, #cedce7 0%,#dcd8cf 93%); /* W3C */
+filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cedce7', endColorstr='#dcd8cf',GradientType=0 ); /* IE6-9 */
+}
+
+.stat-value {
+display: block;
+margin-bottom: .55em;
+font-size: 30px;
+font-weight: bold;
+letter-spacing: -2px;
+color: #444;
+}
+
+.stats .stat {
+display: table-cell;
+width: 40%;
+vertical-align: top;
+font-size: 11px;
+font-weight: bold;
+color: #999;
+}
+
+.wrapper {
+	min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    margin: 0 auto -63px;
+ }
+
+        .push {
+            height: 63px;
+        }
+        /* not required for sticky footer; just pushes hero down a bit */
+        .wrapper > .container-fluid {
+            padding-top: 60px;
+        }
+
+footer {
+	color: #666;
+    background: #222;
+    padding: 17px 0 18px 0;
+    border-top: 1px solid #000;
+        
+}
+        footer a {
+            color: #999;
+        }
+        footer a:hover {
+            color: #efefef;
+        }
+        
+html, body {            
+	min-height: 100%;
+    height: auto !important;
+    height: 100%;
+    margin: 0 auto -63px;
+}
+html { background: transparent }
