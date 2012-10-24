@@ -1,0 +1,225 @@
+@(dups: String)(total: String)(orgs: String)(repos: String)(projects: String)
+<!DOCTYPE html>
+
+<html>
+
+    <head>
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.min.css")">
+        <link rel="stylesheet" media="screen" href="@routes.Assets.at("stylesheets/main.css")">
+        <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
+        <script src="@routes.Assets.at("javascripts/jquery-1.7.1.min.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.at("javascripts/bootstrap.js")" type="text/javascript"></script>
+        <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    	<script type="text/javascript">
+      		google.load('visualization', '1', {packages: ['corechart']});
+    	</script>
+    </head>
+    <body class="gradient">
+    <script type="text/javascript">
+    
+    	function initializeModal(projectName){
+    		if(projectName == 'conflicts'){
+    			$('#conflictsModal').modal('show');
+    			return;
+    		}
+    		$.get("quickStats/"+projectName,function(data){
+    			$('#spanOrgsStats').text(data.OrgsNumber);
+    			$('#spanRecsStats').text(data.RecordsNumber);
+    			$('#spanPubsStats').text(data.ReportsNumber);
+    			$('#spanDupsStats').text(data.ConflictsNumber);
+    			$('#latestDateHero').text(data.latestDate);
+    			$('#pieCharts').empty();
+    			for(var i=0;i<data.orgsRecordsCount.length;i++){
+    				var tmpPieData = data.orgsRecordsCount[i];
+    				var values = tmpPieData.values;
+    				var pref = tmpPieData.namespace;
+    				var data2 = google.visualization.arrayToDataTable(values);
+    				d=document.createElement('div');
+    				pd = document.createElement('div');
+    				a = document.createElement('a');
+    				$(a).text(pref).attr("href", "http://panic.image.ntua.gr:9000/"+projectName+"/oai?verb=ListIdentifiers&metadataPrefix="+pref)
+    				.attr("target","_blank");
+    				l=document.createElement('legend');
+    				$(l).text("Distribution of Records among Organizations for NameSpace ").append(a);
+    				$(d).addClass("well span9").attr("style", "background-color:#B6C2C6").append([l,pd]);
+					
+    				var pieChart = new google.visualization.PieChart(pd);
+        			pieChart.draw(data2, {title:"Records per Organization ID", width:600, height:500,backgroundColor: '#B6C2C6'});
+
+        			$('#pieCharts').append(d);
+    			}
+    			//var values = data.orgsRecordsCount;
+    			//var data2 = google.visualization.arrayToDataTable(values);
+    			//var pieChart = new google.visualization.PieChart(document.getElementById('orgViz'));
+    			//pieChart.draw(data2, {title:"Records per Organization ID", width:600, height:500,backgroundColor: '#B6C2C6'});
+    		});
+    		$("#modalHeaderText").html('Quick Overview for Project ' + projectName);
+    		$('#statsModal').modal('show');	
+    	}
+    	
+    	function drawVisualization() {
+        // Create and populate the data table.
+  		
+    	$.get("getAggregatedValues", function(data){
+    		var data1 = google.visualization.arrayToDataTable(data.vals);
+            var pie = new google.visualization.PieChart(document.getElementById('visualization'));
+            pie.draw(data1, {title:"Records per Project", backgroundColor: '#B6C2C6', is3D:true});
+            
+            google.visualization.events.addListener(pie, 'select', function() {
+          	  //alert(data1.getValue(pie.getSelection()[0].row, 0));
+            	//$('#statsModal').modal('show');
+            	initializeModal(data1.getValue(pie.getSelection()[0].row, 0));
+          	});
+		});    
+      
+        // Create and draw the visualization.
+
+      }
+      google.setOnLoadCallback(drawVisualization);
+
+
+      $.get("projects.json", function(data){
+			var inner = "";
+    	  for(var i = 0; i < data.projects.length;i++){
+				if(i == 0){
+	                 inner += "<div class=\"item active\">"
+	                	 inner +=   "<img src=\"/assets/images/" + data.projects[i].image + "\" " + "alt=\"\">"
+	                		 inner +=  "<div class=\"carousel-caption\">"
+	                			 inner +=   "<h4>"+data.projects[i].title+"</h4>"
+	                			 inner +=   "<p>"+data.projects[i].description+"</p>"
+	                			 inner += "<span class=\"label label-important\">" + "<a href="+ "\"/manager/statistics/"+data.projects[i].projectName +"\">" +"Load" +"</a>"+"</span>"
+	                			 inner +=  "</div>"
+	                				 inner +=  " </div>"
+				}else{
+					inner +=   "<div class=\"item\">"
+						inner +=    " <img src=\"/assets/images/"+ data.projects[i].image +  "\" " + "alt=\"\">"
+							inner +=  "<div class=\"carousel-caption\">"
+								inner +=   "<h4>"+data.projects[i].title+"</h4>"
+								inner +=  "<p>"+data.projects[i].description+"</p>"
+								inner += "<span class=\"label label-important\">" + "<a href="+ "\"/manager/statistics/"+data.projects[i].projectName +"\">" +"Load" +"</a>"+"</span>"
+								inner +=  "</div>"
+									inner +=  "</div>"
+				}
+			}
+    	  $('#inner-car').append(inner);
+		}); 
+      </script>
+    <div class="wrapper">
+    <div class="container">
+	 		<div class="row">
+		 			<div class="well span12 well-small" style=" background-color:#B6C2C6">
+		 			<legend>Mint OAI-PMH Repository Overall Statistics</legend>
+						<div class="span2 offset2">
+							<div class="stat">
+								<span class="stat-value">@repos</span>Repositories
+							</div>
+						</div>
+						<div class="span2">
+							<div class="stat">
+								<span class="stat-value">@orgs</span>Organizations
+							</div>
+						</div>
+						<div class="span2">
+							<div class="stat">
+								<span class="stat-value">@dups</span>Duplicates
+							</div>
+						</div>
+						<div class="span2">
+							<div class="stat">
+								<span class="stat-value">@total</span>Unique Records
+							</div>
+						</div>
+						<div class="row">
+							<div class="span2 offset3" id="visualization" style="width: 500px; height: 350px;background-color:transparent">>
+								
+							</div>	
+						</div>
+		 			</div>
+		 			
+		 			<div class="row">
+					 	<div class="span8 offset3">
+			              <div id="myCarousel" class="carousel slide" data-interval=false>
+			                <div id="inner-car" class="carousel-inner">
+			                </div>
+			                <a class="left carousel-control" href="#myCarousel" data-slide="prev">&lsaquo;</a>
+			                <a class="right carousel-control" href="#myCarousel" data-slide="next">&rsaquo;</a>
+			              </div>
+			            </div>
+		 			</div>
+	 		</div>
+	 	</div>
+ 	</div>
+
+
+		<div id = "conflictsModal" class="modal hide fade">
+			<div  id = "modalHeader" class="modal-header">
+		    	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		    	<h3>Warning</h3>
+		    </div>
+			<div class="modal-body">
+				Detailed statistics for Conflicts are not available from this modality. Please refer to the detailed statistics for each project.
+			</div>
+			<div class="modal-footer">
+		     	<button class="btn btn-danger" data-dismiss="modal" aria-hidden="true">Close</button>
+		 	</div>
+		</div>	
+		
+	 	<div id = "statsModal" class="modal hide fade" style="width:800px; height:700px; max-height:600px">
+		    <div  id = "modalHeader" class="modal-header">
+		    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		    <h3 id="modalHeaderText"></h3>
+		    </div>
+		    <div class="modal-body">
+				<div class="row">
+				<div id="modalStat1" class="span2">
+						<div class="stat">
+							<span id="spanOrgsStats" class="stat-value">0</span>Organizations
+						</div>
+					</div>
+					<div id="modalStat2" class="span2">
+						<div class="stat">
+							<span id="spanPubsStats" class="stat-value">0</span>Publications
+						</div>
+					</div>
+					<div id="modalStat3" class="span2">
+						<div class="stat">
+							<span id="spanDupsStats" class="stat-value">0</span>Duplicates
+						</div>
+					</div>
+					<div id="modalStat4" class="span2">
+						<div class="stat">
+							<span id="spanRecsStats" class="stat-value">0</span> Unique Records
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="alert span9 alert-info">
+						<strong id="latestDateHero"></strong>
+						Was the last time that a publication occured for this specific repository.
+					</div>
+				</div>
+				<div id = "pieCharts" class="row">
+					<div class="well span9" style=" background-color:#B6C2C6">
+						<legend>Distribution of Records among Organizations</legend>
+						<div id="orgViz">
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					
+				</div>
+		    </div>
+		    <div class="modal-footer">
+		     <button class="btn btn-danger" data-dismiss="modal" aria-hidden="true">Close</button>
+		    </div>
+    </div>
+ 	<div class="push"><!--//--></div>
+	<footer>
+	     <div class="container-fluid">
+	     	<div class="row">
+        		<p class="span2">Powered By <a href="http://mint.image.ece.ntua.gr/" rel="author">Mint</a>.</p>
+        	</div>
+      </div>
+	</footer>
+    </body>
+</html>

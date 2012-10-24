@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<script src="@routes.Assets.at("javascripts/jquery-1.7.1.min.js")" type="text/javascript"></script>
+	</head>
+	<body>
+	<script>
+	$.get("record.json", function(data){
+		$('#id2').text(data.title);
+		$('#id3').text(data.description);
+	});
+	</script>
+		<div id="id1">
+			<h1 id= "id2"></h1>
+			<h3 id="id3"></h3>
+		</div>
+	</body>
+</html>
