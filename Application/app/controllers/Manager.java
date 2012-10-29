@@ -10,15 +10,14 @@ import java.util.Locale;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
 
+import gr.ntua.ivml.mint.oai.model.Project;
 import gr.ntua.ivml.mint.oai.util.MongoDB;
 import play.mvc.Controller;
 import play.mvc.Result;
 
 import views.html.*;
 
-public class Manager extends Controller{
-	
-	
+public class Manager extends Controller {
 	public static Result getOrgTimeLine(String proj, String org){
 		BasicDBObject q = new BasicDBObject();
 		q.put("projectName", proj);
@@ -199,13 +198,38 @@ public class Manager extends Controller{
 		return ok(managerLandingPage.render(dups, total, orgs, repos, com.mongodb.util.JSON.serialize(res)));
 	
 	}
+
+	public static Result getOverall(){
+		BasicDBObject result = new BasicDBObject();
+		response().setContentType("application/json");
+
+		long unique = 0;
+		int repositories = 0;
+		int organizations = 0;
+		for(String setName:MongoDB.getDB().getCollectionNames()){
+			if(!setName.equals("reports") && !setName.equals("conflicts") && !setName.equals("system.indexes") 
+						&& !setName.equals("fs.files") && !setName.equals("fs.chunks") && !setName.equals("metadata")){
+							unique += MongoDB.getDB().getCollection(setName).count();
+							repositories++;
+							ArrayList<Object> dists = (ArrayList<Object>) MongoDB.getDB().getCollection(setName).distinct("orgId");
+							organizations += dists.size();
+			}
+		}
+		
+		String duplicates = "" + MongoDB.getDB().getCollection("conflicts").count();
+		
+		result.put("repositories", repositories);
+		result.put("organizations", organizations);
+		result.put("unique", unique);
+		result.put("duplicates", duplicates);
+		
+		return ok(com.mongodb.util.JSON.serialize(result));
+	
+	}
 	
 	public static Result getProjects(){
-		BasicDBObject q = new BasicDBObject();
-		q.put("id", "projects");
-		BasicDBObject res = (BasicDBObject) MongoDB.getDB().getCollection("metadata").findOne(q);
 		response().setContentType("application/json");
-		return ok(com.mongodb.util.JSON.serialize(res));
+		return ok(com.mongodb.util.JSON.serialize(Project.getAll()));
 	}
 	
 	public static Result getRecordsPerProject(){

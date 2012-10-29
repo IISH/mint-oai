@@ -8,6 +8,7 @@ GET     /                           controllers.Application.index()
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
 GET		/manager/					controllers.Manager.landingPage()
+GET		/manager/overall				controllers.Manager.getOverall()
 GET		/manager/getAggregatedValues	controllers.Manager.getRecordsPerProject()
 GET		/manager/quickStats/:proj		controllers.Manager.getQuickStats(proj: String)
 GET		/manager/projects.json			controllers.Manager.getProjects()
