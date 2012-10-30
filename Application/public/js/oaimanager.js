@@ -62,11 +62,7 @@ MintOAIOverallStatistics.prototype.drawVisualization = function() {
 
 		var data1 = google.visualization.arrayToDataTable(data.vals);		
 		var pie = new google.visualization.PieChart(self.visualization[0]);
-		pie.draw(data1, {title: "Records per Project", is3D: true});
-    
-		google.visualization.events.addListener(pie, 'select', function() {
-        	initializeModal(data1.getValue(pie.getSelection()[0].row, 0));
-      	});
+		pie.draw(data1, {title: "Records per Project", is3D: true});    
 	});    
 }
 
@@ -118,14 +114,81 @@ MintOAIProjects.prototype.loadProjects = function() {
 	});    
 }
 
+function MintOAIProjectStatistics(id) {
+	var self = this;
+
+	this.id = id;
+	this.container = $("#" + id);
+	this.repositories = $("<span>").addClass("stat-value");
+	this.organizations = $("<span>").addClass("stat-value");
+	this.duplicates = $("<span>").addClass("stat-value");
+	this.unique = $("<span>").addClass("stat-value");
+
+	// header
+	this.container.empty();
+	var legend = $("<legend>").text("Overall Statistics").appendTo(this.container);
+	
+	// loading page
+	this.loading = $("<div>").attr("id", id + "-loading").appendTo(this.container);
+//	$("<div>").addClass("progress progress-striped active").appendTo(this.loading).append($("<div>").addClass("bar").css("width", "100%"));
+	$("<div>").addClass("spinner").appendTo(this.loading);
+	
+	// contents
+	this.contents = $("<div>").appendTo(this.container);
+	this.statistics = $("<div>").attr("id", id + "-statistics").addClass("row").css("margin-bottom", "10px").appendTo(this.contents);
+	statistic("Repositories", this.repositories).appendTo(this.statistics);
+	statistic("Organizations", this.organizations).appendTo(this.statistics);
+	statistic("Duplicates", this.duplicates).appendTo(this.statistics);
+	statistic("Unique Records", this.unique).appendTo(this.statistics);
+	
+	var visualizationContainer = $("<div>").addClass("row").appendTo(this.contents);
+	this.visualization = $("<div>").addClass("span3").attr("id", id + "-visualization").css({
+		"width": "500px",
+		"height": "350px"
+	}).appendTo(visualizationContainer);
+}
+
+MintOAIProjectStatistics.prototype.refresh = function() {
+	var self = this;
+	
+	this.loading.show();
+	this.contents.hide();
+	
+	$.get("overall", function(data) {
+		self.loading.hide();
+		self.contents.show();
+
+		self.repositories.text(addCommas(data.repositories));
+		self.organizations.text(addCommas(data.organizations));
+		self.duplicates.text(addCommas(data.duplicates));
+		self.unique.text(addCommas(data.unique));
+
+		self.drawVisualization();
+	});
+}
+
+MintOAIProjectStatistics.prototype.drawVisualization = function() {
+	var self = this;
+	this.visualization.empty();
+	this.visualization.append($("<div>").addClass("spinner"));
+	
+	// Create and populate the data table.
+	$.get("recordsPerProject", function(data) {
+		self.visualization.empty();
+
+		var data1 = google.visualization.arrayToDataTable(data.vals);		
+		var pie = new google.visualization.PieChart(self.visualization[0]);
+		pie.draw(data1, {title: "Records per Project", is3D: true});    
+	});    
+}
+
+
 // previous methods
 
 function initializeModal(projectName){
-	if(projectName == 'conflicts'){
-		$('#conflictsModal').modal('show');
-		return;
-	}
 	$.get("quickStats/"+projectName,function(data){
+		$("#modalHeaderText").html('Quick Overview for Project ' + projectName);
+
 		$('#spanOrgsStats').text(data.OrgsNumber);
 		$('#spanRecsStats').text(data.RecordsNumber);
 		$('#spanPubsStats').text(data.ReportsNumber);
@@ -156,7 +219,7 @@ function initializeModal(projectName){
 		//var pieChart = new google.visualization.PieChart(document.getElementById('orgViz'));
 		//pieChart.draw(data2, {title:"Records per Organization ID", width:600, height:500,backgroundColor: '#B6C2C6'});
 	});
-	$("#modalHeaderText").html('Quick Overview for Project ' + projectName);
+
 	$('#statsModal').modal('show');	
 }
 
@@ -186,11 +249,14 @@ function statistic(label, dataContainer) {
 function projectDiv(project) {
 	var div = $("<div>").addClass("project");
 	
+	var title = project.projectName;
+	if(project.title != undefined) title = project.title;
+	
 	$("<i>").addClass("icon-signal").css({ float: "right" }).appendTo(div).click(function () {
-		console.log(project.projectName);
+		initializeModal(project.projectName);
 	}).attr("title", "Statistics for " + project.title).tooltip();
 
-	$("<div>").append($("<a>").text(project.title).attr("target", "_blank").attr("href", "http://localhost:9001/manager/statistics/" + project.projectName)).appendTo(div);
+	$("<div>").append($("<a>").text(title).attr("target", "_blank").attr("href", "http://localhost:9001/manager/statistics/" + project.projectName)).appendTo(div);
 	$("<small>").css("color", "silver").text(project.projectName).appendTo(div);
 	
 	return div;

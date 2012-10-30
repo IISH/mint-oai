@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
 
@@ -175,28 +176,7 @@ public class Manager extends Controller {
 	
 	public static Result landingPage(){
 		try {
-			long counter = 0;
-			int counter1 = 0;
-			int counter2 = 0;
-			for(String setName:MongoDB.getDB().getCollectionNames()){
-				if(!setName.equals("reports") && !setName.equals("conflicts") && !setName.equals("system.indexes") 
-							&& !setName.equals("fs.files") && !setName.equals("fs.chunks") && !setName.equals("metadata")){
-								counter += MongoDB.getDB().getCollection(setName).count();
-								counter1++;
-								ArrayList<Object> dists = (ArrayList<Object>) MongoDB.getDB().getCollection(setName).distinct("orgId");
-								counter2 += dists.size();
-				}
-			}
-			
-			String dups = ""+ NumberFormat.getNumberInstance(Locale.US).format(MongoDB.getDB().getCollection("conflicts").count());
-			String orgs = "" + NumberFormat.getNumberInstance(Locale.US).format(counter2);
-			String total = "" + NumberFormat.getNumberInstance(Locale.US).format(counter);
-			String repos = "" + NumberFormat.getNumberInstance(Locale.US).format(counter1);
-			
-			BasicDBObject q = new BasicDBObject();
-			q.put("id", "projects");
-			BasicDBObject res = (BasicDBObject) MongoDB.getDB().getCollection("metadata").findOne(q);
-			return ok(managerLandingPage.render(dups, total, orgs, repos, com.mongodb.util.JSON.serialize(res)));
+			return ok(managerLandingPage.render());
 		} catch(Exception e) {
 			return internalServerError(serverUnavailable.render(e));
 		}
@@ -227,12 +207,37 @@ public class Manager extends Controller {
 		result.put("duplicates", duplicates);
 		
 		return ok(com.mongodb.util.JSON.serialize(result));
-	
 	}
 	
 	public static Result getProjects(){
 		response().setContentType("application/json");
-		return ok(com.mongodb.util.JSON.serialize(Project.getAll()));
+		
+		BasicDBList projects = Project.getAll();
+
+		BasicDBObject list = new BasicDBObject();
+		for(String setName: MongoDB.getDB().getCollectionNames()){
+			
+			if(!setName.equals("reports") && !setName.equals("conflicts") && !setName.equals("system.indexes") 
+					&& !setName.equals("fs.files") && !setName.equals("fs.chunks") && !setName.equals("metadata")){
+
+				BasicDBObject project = null;
+				for(Object o: projects) {
+					BasicDBObject p = ((BasicDBObject) o);
+					if(p.getString("projectName").equals(setName)) {
+						project = p;
+					}
+				}
+				
+				if(project == null) {
+					project = new BasicDBObject();
+					project.append("projectName", setName);
+				}
+				
+				list.append(setName, project);
+			}
+		}
+		
+		return ok(com.mongodb.util.JSON.serialize(list));
 	}
 	
 	public static Result getRecordsPerProject(){
