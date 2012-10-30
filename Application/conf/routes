@@ -6,13 +6,16 @@
 GET     /                           controllers.Application.index()
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
-GET		/manager/					controllers.Manager.landingPage()
-GET		/manager/overall				controllers.Manager.getOverall()
-GET		/manager/getAggregatedValues	controllers.Manager.getRecordsPerProject()
-GET		/manager/quickStats/:proj		controllers.Manager.getQuickStats(proj: String)
-GET		/manager/projects.json			controllers.Manager.getProjects()
+GET     /assets/*file               	controllers.Assets.at(path="/public", file)
+GET		/manager/						controllers.Manager.landingPage()
+
 GET		/manager/:proj/orgStats.json	controllers.Manager.getOrgStats(proj: String)
 GET		/manager/:proj/timeline/:org	controllers.Manager.getOrgTimeLine(proj: String, org: String)
 GET		/manager/statistics/:proj		controllers.Manager.loadStats(proj: String)
-GET		/:collection/oai			controllers.OAI.show(collection: String)
+GET		/:collection/oai				controllers.OAI.show(collection: String)
+
+# JSON data
+GET		/manager/overall				controllers.Manager.getOverall()
+GET		/manager/projects				controllers.Manager.getProjects()
+GET		/manager/recordsPerProject		controllers.Manager.getRecordsPerProject()
+GET		/manager/quickStats/:proj		controllers.Manager.getQuickStats(proj: String)

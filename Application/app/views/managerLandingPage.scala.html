@@ -12,29 +12,43 @@
     <script src='@routes.Assets.at("js/oaimanager.js")' type="text/javascript"></script>
 	<script type="text/javascript">
 	  		google.load('visualization', '1', {packages: ['corechart']});
+
+	  		$(document).ready(function () {
+	  			google.setOnLoadCallback(function() {
+	  				overall = new MintOAIOverallStatistics("overall");
+	  				overall.refresh();
+	  				
+	  				projects = new MintOAIProjects("projects");
+	  				projects.refresh();
+	  				
+	  				$("#refresh").click(function() {
+	  					overall.refresh();
+	  					projects.refresh();
+	  				})
+	  			});
+	  		});
 	</script>
 </head>
 
 <body class="gradient">
     <div class="wrapper">
+		<div class="navbar">
+			<div class="navbar-inner">
+				<a class="brand" href="#">Mint OAI Repository</a>
+				<button id="refresh" style="float: right" class="btn">Refresh</button>
+			</div>
+		</div>
     	<div class="container">
-	 		<div class="row">
-		 		<div id="overall" class="well span12 well-small">
+ 			<div class="well">
+	 				<div class="row">
+		 			<div id="projects" class="span3">
+		 			</div>
+	     	 		<div id="overall" class="span8">
+			 		</div>
 		 		</div>
 	 		</div>
-
- 			<div class="row" style="display:none">
-			 	<div class="span8 offset3">
-	              <div id="myCarousel" class="carousel slide" data-interval=false>
-	                <div id="inner-car" class="carousel-inner">
-	                </div>
-	                <a class="left carousel-control" href="#myCarousel" data-slide="prev">&lsaquo;</a>
-	                <a class="right carousel-control" href="#myCarousel" data-slide="next">&rsaquo;</a>
-	              </div>
-	            </div>
- 			</div>
 		</div>
-	 </div>
+	</div>
 
 
 	<div id = "conflictsModal" class="modal hide fade">
