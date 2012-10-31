@@ -5,6 +5,7 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 import com.mongodb.BasicDBList;
@@ -91,54 +92,25 @@ public class Manager extends Controller {
 	
 	
 	public static Result getQuickStats(String proj){
-		ArrayList<Object> dists = (ArrayList<Object>) MongoDB.getDB().getCollection(proj).distinct("orgId");
+		Project project = new Project(proj);
+
+		List<Object> dists = project.getOrganizationIds();
+		List<String> namespaces = project.getNamespaces();
+		Project.Statistics statistics = project.getStatistics();
 		
-		int totalConflicts = 0;
-		for(Object obj : dists){
-			Integer in = (Integer)obj;
-			BasicDBObject q1 = new BasicDBObject();
-			q1.put("orgId", in.intValue());
-			DBCursor cur = MongoDB.getDB().getCollection("reports").find(q1);
-			while(cur.hasNext()){
-				BasicDBObject tmpQ = (BasicDBObject) cur.next();
-				if(tmpQ.get("conflictedRecords") != null){
-					totalConflicts += tmpQ.getInt("conflictedRecords");	
-				}
-			}
-				
-		}
-		
-		ArrayList<Object> ns = (ArrayList<Object>) MongoDB.getDB().getCollection(proj).distinct("namespace.prefix");
-		ArrayList<String> namespaces = new ArrayList<String>();
-		for(Object n:ns){
-			String prefix = (String) n;
-			namespaces.add(prefix);
-		}
-		
-		
-		
-		int counter1 = dists.size(); // number of organizations.
-		long counter2 = MongoDB.getDB().getCollection(proj).count(); //total records
-		BasicDBObject q = new BasicDBObject();
-		q.put("projectName", proj);
-		response().setContentType("application/json");
-		int counter3 = MongoDB.getDB().getCollection("reports").find(q).count(); //total number of reports
 		BasicDBObject res = new BasicDBObject();
-		res.put("OrgsNumber", NumberFormat.getNumberInstance(Locale.US).format(counter1));
-		res.put("RecordsNumber", NumberFormat.getNumberInstance(Locale.US).format(counter2));
-		res.put("ReportsNumber", NumberFormat.getNumberInstance(Locale.US).format(counter3));
-		res.put("ConflictsNumber", NumberFormat.getNumberInstance(Locale.US).format(totalConflicts));
-		
+
 		res.put("prefixes", namespaces);
-		DBCursor cur1 = MongoDB.getDB().getCollection(proj).find().sort(new BasicDBObject("datestamp", -1));
-		BasicDBObject latest = (BasicDBObject) cur1.next();
-		Calendar mydate = Calendar.getInstance();
-		mydate.setTimeInMillis(latest.getLong("datestamp"));
-		
+		res.put("organizations", statistics.organizations);
+		res.put("unique", statistics.records);
+		res.put("publications", statistics.publications);
+		res.put("duplicates", statistics.duplicates);		
+				
 		DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-		res.put("latestDate", df.format(mydate.getTime()));
+		res.put("latestDate", df.format(project.getLatestPublicationDate()));
 		
 		
+		/*
 		ArrayList<BasicDBObject> recordCountsPerNS = new ArrayList<BasicDBObject>();
 		
 		for(String pre:namespaces){
@@ -166,7 +138,9 @@ public class Manager extends Controller {
 			recordCountsPerNS.add(tmpObj);
 		}
 		res.put("orgsRecordsCount", recordCountsPerNS);
+		*/
 		
+		response().setContentType("application/json");
 		return ok(com.mongodb.util.JSON.serialize(res));
 	}
 	
