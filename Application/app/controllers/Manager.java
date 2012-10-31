@@ -5,6 +5,7 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -94,52 +95,22 @@ public class Manager extends Controller {
 	public static Result getQuickStats(String proj){
 		Project project = new Project(proj);
 
-		List<Object> dists = project.getOrganizationIds();
 		List<String> namespaces = project.getNamespaces();
-		Project.Statistics statistics = project.getStatistics();
 		
 		BasicDBObject res = new BasicDBObject();
 
-		res.put("prefixes", namespaces);
-		res.put("organizations", statistics.organizations);
-		res.put("unique", statistics.records);
-		res.put("publications", statistics.publications);
-		res.put("duplicates", statistics.duplicates);		
-				
-		DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-		res.put("latestDate", df.format(project.getLatestPublicationDate()));
+		res.put("namespaces", namespaces);
+		res.put("organizations", project.getOrganizationCount());
+		res.put("unique", project.getUniqueRecordsCount());
+		res.put("publications", project.getReportsCount());
+		res.put("duplicates", project.getConflicts());
+		res.put("latestPublicationDate", Manager.formatDate(project.getLatestPublicationDate()));
 		
-		
-		/*
-		ArrayList<BasicDBObject> recordCountsPerNS = new ArrayList<BasicDBObject>();
-		
-		for(String pre:namespaces){
-			
-			String[] headers = new String[2];
-			headers[0] = "Organization IDs";
-			headers[1] = "records";
-			ArrayList<Object[]> returnedVals = new ArrayList<Object[]>();
-			returnedVals.add(headers);
-			Object[] vals;
-			BasicDBObject tmpObj = new BasicDBObject();
-			for(Object obj:dists){
-				Integer in = (Integer)obj;
-				vals = new Object[2];
-				BasicDBObject qN = new BasicDBObject();
-				qN.put("orgId", in);
-				qN.put("namespace.prefix", pre);
-				int size = MongoDB.getDB().getCollection(proj).find(qN).count();
-				vals[0] = "" + in;
-				vals[1] = size;
-				returnedVals.add(vals);
-			}
-			tmpObj.put("namespace", pre);
-			tmpObj.put("values", returnedVals);
-			recordCountsPerNS.add(tmpObj);
+		BasicDBObject recordCounts = new BasicDBObject();
+		for(String namespace: namespaces) {
+			recordCounts.append(namespace, project.getRecordsCountPerOrganization(namespace));
 		}
-		res.put("orgsRecordsCount", recordCountsPerNS);
-		*/
-		
+
 		response().setContentType("application/json");
 		return ok(com.mongodb.util.JSON.serialize(res));
 	}
@@ -241,5 +212,11 @@ public class Manager extends Controller {
 		obj.put("vals", returnedVals);
 		response().setContentType("application/json");
 		return ok(com.mongodb.util.JSON.serialize(obj));
+	}
+	
+	// utility
+	
+	private static String formatDate(Date date) {
+		return new SimpleDateFormat("dd/MM/yyyy HH:mm:ss").format(date);
 	}
 }

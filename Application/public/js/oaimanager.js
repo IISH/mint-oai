@@ -187,11 +187,13 @@ function MintOAIProjectStatistics(project, id) {
 	statistic("Duplicates", this.duplicates).appendTo(this.statistics);
 	statistic("Unique Records", this.unique).appendTo(this.statistics);
 	
-	var visualizationContainer = $("<div>").addClass("row").appendTo(this.contents);
-	this.visualization = $("<div>").addClass("span3").attr("id", id + "-visualization").css({
-		"width": "500px",
-		"height": "350px"
-	}).appendTo(visualizationContainer);
+	this.latestPublicationDate = $("<strong>");
+	var info = $("<div>").addClass("alert alert-info span9").append($("<span>").text("Date of last publication: ")).append(this.latestPublicationDate);
+	$("<div>").addClass("row").append(info).appendTo(this.contents);
+	
+	aaa = this.latestPublicationDate;
+
+	this.tabs = $("<div>").appendTo(this.contents);
 	
 	this.refresh();
 }
@@ -212,8 +214,26 @@ MintOAIProjectStatistics.prototype.refresh = function(project) {
 		self.organizations.text(addCommas(data.organizations));
 		self.duplicates.text(addCommas(data.duplicates));
 		self.unique.text(addCommas(data.unique));
-
-		self.drawVisualization(data.orgsRecordsCount[0]);
+		
+		self.latestPublicationDate.text(data.latestPublicationDate);
+		
+		self.tabs.empty();
+		
+		var ul = $("<ul>").addClass("nav nav-tabs").appendTo(self.tabs);
+		var tabContents = $("<div>").addClass("tab-content").appendTo(self.tabs);
+		for(var i in data.namespaces) {
+			var namespace = data.namespaces[i];
+			$("<li>").append($("<a>").attr("href", "#stats-" + namespace).text(namespace)).appendTo(ul);
+			$("<div>").addClass("tab-pane").attr("id", "stats-" + namespace).text("Contents for " + namespace).appendTo(tabContents);
+		}
+		
+		ul.find("a").click(function (e) {
+			e.preventDefault();
+			$(this).tab("show");
+		});
+		
+		ul.find("li:first").addClass("active");
+		tabContents.find(".tab-pane:first").addClass("active");
 	});
 }
 

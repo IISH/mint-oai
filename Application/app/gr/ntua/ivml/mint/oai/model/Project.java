@@ -3,7 +3,9 @@ package gr.ntua.ivml.mint.oai.model;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import gr.ntua.ivml.mint.oai.util.MongoDB;
 
@@ -12,13 +14,6 @@ import com.mongodb.BasicDBList;
 import com.mongodb.DBCursor;
 
 public class Project {
-	public class Statistics {
-		public int publications = 0;
-		public int organizations = 0;
-		public int duplicates = 0;
-		public long records = 0;
-	}
-	
 	private String project = null;
 	
 	public Project(String project) {
@@ -56,8 +51,14 @@ public class Project {
 	 * Get a list of organization ids in OAI for this project.
 	 * @return
 	 */
-	public List<Object> getOrganizationIds() {
-		return (List<Object>) MongoDB.getDB().getCollection(this.project).distinct("orgId");
+	public List<Integer> getOrganizationIds() {
+		List<Object> objects =  (List<Object>) MongoDB.getDB().getCollection(this.project).distinct("orgId");
+		ArrayList<Integer> ids = new ArrayList<Integer>();
+		for(Object o: objects) {
+			ids.add(new Integer(o.toString()));
+		}
+		
+		return ids;
 	}
 	
 	/**
@@ -69,9 +70,9 @@ public class Project {
 	}
 	
 	/**
-	 * Get number of published records for this project.
+	 * Get number of unique published records for this project.
 	 */
-	public long getRecordsCount() {
+	public long getUniqueRecordsCount() {
 		 return MongoDB.getDB().getCollection(this.project).count();
 	}
 	
@@ -94,10 +95,9 @@ public class Project {
 	public int getConflicts() {
 		int conflicts = 0;
 		
-		for(Object obj : this.getOrganizationIds()){
-			Integer in = (Integer)obj;
+		for(Integer id: this.getOrganizationIds()){
 			BasicDBObject q1 = new BasicDBObject();
-			q1.put("orgId", in.intValue());
+			q1.put("orgId", id);
 			DBCursor cur = MongoDB.getDB().getCollection("reports").find(q1);
 			while(cur.hasNext()){
 				BasicDBObject tmpQ = (BasicDBObject) cur.next();
@@ -126,19 +126,47 @@ public class Project {
 		
 		return date; 
 	}
-	
+
 	/**
-	 * Get aggregated statistics for this project.
+	 * Get number of records published in this project that belong to the specified namespace.
+	 * @param namespace
 	 * @return
 	 */
-	public Project.Statistics getStatistics() {
-		Project.Statistics statistics = new Project.Statistics();
+	public int getRecordsCount(String namespace) {
+		BasicDBObject qN = new BasicDBObject();
+		qN.put("namespace.prefix", namespace);
+		int size = MongoDB.getDB().getCollection(this.project).find(qN).count();
 		
-		statistics.records = this.getRecordsCount();
-		statistics.duplicates = this.getConflicts();
-		statistics.organizations = this.getOrganizationCount();
-		statistics.publications = this.getReportsCount();
+		return size;
+	}
+
+	/**
+	 * Get number of records published by this organization that belong to the specified namespace.
+	 * @param namespace
+	 * @param organizationId
+	 * @return
+	 */
+	public int getRecordsCount(String namespace, Integer organizationId) {
+		BasicDBObject qN = new BasicDBObject();
+		qN.put("orgId", organizationId);
+		qN.put("namespace.prefix", namespace);
+		int size = MongoDB.getDB().getCollection(this.project).find(qN).count();
 		
-		return statistics;
+		return size;
+	}
+
+	/**
+	 * Get a map with organization id as the key and the number of records for the specified namespace as the value.
+	 * @param namespace
+	 * @return
+	 */
+	public Map<String, Integer> getRecordsCountPerOrganization(String namespace) {
+		HashMap<String, Integer> map = new HashMap<String, Integer>();
+
+		for(Integer organizationId: this.getOrganizationIds()) {
+			map.put(organizationId.toString(), new Integer(this.getRecordsCount(namespace, organizationId)));
+		}
+		
+		return map;
 	}
 }
