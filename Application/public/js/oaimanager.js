@@ -72,7 +72,7 @@ MintOAIProjects.prototype.projectDiv = function(project) {
 		self.projectStatistics = new MintOAIProjectStatistics(project, $("#overall"));
 	}).attr("title", "Statistics for " + title).tooltip();
 
-	$("<div>").append($("<a>").text(title).attr("target", "_blank").attr("href", "http://localhost:9001/manager/statistics/" + project.projectName)).appendTo(div);
+	$("<div>").append($("<a>").text(title).attr("target", "_blank").attr("href", "/manager/projects/" + project.projectName)).appendTo(div);
 	$("<small>").css("color", "silver").text(project.projectName).appendTo(div);
 	
 	return div;

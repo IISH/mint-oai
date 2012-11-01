@@ -59,32 +59,58 @@ public class Manager extends Controller {
 		return ok(com.mongodb.util.JSON.serialize(tm));
 	}
 	
+	// views
 	
-	public static Result getOrgStats(String proj){
-		ArrayList<Object> dists = (ArrayList<Object>) MongoDB.getDB().getCollection(proj).distinct("orgId");
+	public static Result index() {
+		return redirect("/manager/");
+	}
+	
+	public static Result landingPage(){
+		try {
+			return ok(manager.render());
+		} catch(Exception e) {
+			return internalServerError(serverUnavailable.render(e));
+		}
+	}
+	
+	public static Result projectLandingPage(String proj){
+		try {
+			return ok(project.render(proj));
+		} catch(Exception e) {
+			return internalServerError(serverUnavailable.render(e));
+		}
+	}
+	
+	// json data
+	
+	public static Result getOrganizations(String proj){
+		Project project = new Project(proj);
 		
-		BasicDBObject q = null;
-		Calendar mydate = Calendar.getInstance();
+		List<Integer> organizationIds =  project.getOrganizationIds();
+		
 		Object[] vals = null;
 		ArrayList<Object[]> returnedVals = new ArrayList<Object[]>();
-		for(Object obj : dists){
-			Integer in = (Integer) obj;
-			q = new BasicDBObject("orgId", in);
-			DBCursor cur = MongoDB.getDB().getCollection("reports").find(q).sort(new BasicDBObject("datestamp", -1));
-			BasicDBObject latestReport = (BasicDBObject) cur.next();
-			mydate.setTimeInMillis(latestReport.getLong("datestamp"));
-			DateFormat df = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-			String date =  df.format(mydate.getTime());
-			int size = MongoDB.getDB().getCollection(proj).find(q).count();
+
+		for(Integer organizationId: organizationIds){
+			BasicDBObject organization = new BasicDBObject();
+			
+			organization.put("latestPublicationDate", formatDate(project.getLatestPublicationDate(organizationId)));
+			organization.put("records", project.getRecordsCount(organizationId));
+			
+			Date date = project.getLatestPublicationDate(organizationId);
+			int size = project.getRecordsCount(organizationId);
+			
 			vals = new Object[3];
-			vals[0] = "" + in;
+			vals[0] = "" + organizationId;
+			
 			BasicDBObject tmp = new BasicDBObject();
 			tmp.put("v", size);
 			tmp.put("f", NumberFormat.getNumberInstance(Locale.US).format(size));
 			vals[1] = tmp;
-			vals[2] = date;
+			vals[2] = formatDate(date);
 			returnedVals.add(vals);
 		}
+		
 		BasicDBObject res = new BasicDBObject();
 		res.put("values", returnedVals);
 		response().setContentType("application/json");
@@ -164,18 +190,6 @@ public class Manager extends Controller {
 		res.put("latestPublicationDate", Manager.formatDate(project.getLatestPublicationDate()));
 		
 		return ok(com.mongodb.util.JSON.serialize(res));
-	}
-	
-	public static Result loadStats(String proj){
-		return ok(ManagerLoadDetailedStats.render(proj));
-	}
-	
-	public static Result landingPage(){
-		try {
-			return ok(managerLandingPage.render());
-		} catch(Exception e) {
-			return internalServerError(serverUnavailable.render(e));
-		}
 	}
 	
 	public static Result getRecordsPerProject(){

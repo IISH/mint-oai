@@ -1,5 +1,7 @@
 package gr.ntua.ivml.mint.oai.model;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -14,10 +16,10 @@ import com.mongodb.BasicDBList;
 import com.mongodb.DBCursor;
 
 public class Project {
-	private String project = null;
+	private String projectId = null;
 	
-	public Project(String project) {
-		this.project = project;
+	public Project(String projectId) {
+		this.projectId = projectId;
 	}
 	
 	/**
@@ -33,11 +35,19 @@ public class Project {
 	}
 	
 	/**
+	 * Get the project id which corresponds to the project mongo collection.
+	 * @return
+	 */
+	public String getProjectId() {
+		return this.projectId;
+	}
+	
+	/**
 	 * Get list of namespaces related to this project.
 	 * @return
 	 */
 	public List<String> getNamespaces() {
-		ArrayList<Object> ns = (ArrayList<Object>) MongoDB.getDB().getCollection(this.project).distinct("namespace.prefix");
+		ArrayList<Object> ns = (ArrayList<Object>) MongoDB.getDB().getCollection(this.projectId).distinct("namespace.prefix");
 		ArrayList<String> namespaces = new ArrayList<String>();
 		for(Object n:ns){
 			String prefix = (String) n;
@@ -52,7 +62,7 @@ public class Project {
 	 * @return
 	 */
 	public List<Integer> getOrganizationIds() {
-		List<Object> objects =  (List<Object>) MongoDB.getDB().getCollection(this.project).distinct("orgId");
+		List<Object> objects =  (List<Object>) MongoDB.getDB().getCollection(this.projectId).distinct("orgId");
 		ArrayList<Integer> ids = new ArrayList<Integer>();
 		for(Object o: objects) {
 			ids.add(new Integer(o.toString()));
@@ -73,7 +83,7 @@ public class Project {
 	 * Get number of unique published records for this project.
 	 */
 	public long getUniqueRecordsCount() {
-		 return MongoDB.getDB().getCollection(this.project).count();
+		 return MongoDB.getDB().getCollection(this.projectId).count();
 	}
 	
 	/**
@@ -82,7 +92,7 @@ public class Project {
 	 */
 	public int getReportsCount() {
 		BasicDBObject q = new BasicDBObject();
-		q.put("projectName", this.project);
+		q.put("projectName", this.projectId);
 		int publications = MongoDB.getDB().getCollection("reports").find(q).count(); //total number of reports
 
 		return publications;
@@ -118,10 +128,10 @@ public class Project {
 	public Date getLatestPublicationDate() {
 		Calendar calendar = Calendar.getInstance();
 
-		DBCursor cur1 = MongoDB.getDB().getCollection(this.project).find().sort(new BasicDBObject("datestamp", -1));
-		BasicDBObject latest = (BasicDBObject) cur1.next();
+		DBCursor cur = MongoDB.getDB().getCollection(this.projectId).find().sort(new BasicDBObject("datestamp", -1));
+		BasicDBObject latestReport = (BasicDBObject) cur.next();
 
-		calendar.setTimeInMillis(latest.getLong("datestamp"));
+		calendar.setTimeInMillis(latestReport.getLong("datestamp"));
 		Date date = calendar.getTime();
 		
 		return date; 
@@ -135,9 +145,22 @@ public class Project {
 	public int getRecordsCount(String namespace) {
 		BasicDBObject qN = new BasicDBObject();
 		qN.put("namespace.prefix", namespace);
-		int size = MongoDB.getDB().getCollection(this.project).find(qN).count();
+		int size = MongoDB.getDB().getCollection(this.projectId).find(qN).count();
 		
 		return size;
+	}
+	
+	public Organization getOrganization(Integer organizationId) {
+		return new Organization(this, organizationId);
+	}
+	
+	/**
+	 * Get latest publication date for an organization of this project
+	 * @organizationId
+	 * @return
+	 */
+	public Date getLatestPublicationDate(Integer organizationId) {
+		return this.getOrganization(organizationId).getLatestPublicationDate();
 	}
 
 	/**
@@ -147,12 +170,17 @@ public class Project {
 	 * @return
 	 */
 	public int getRecordsCount(String namespace, Integer organizationId) {
-		BasicDBObject qN = new BasicDBObject();
-		qN.put("orgId", organizationId);
-		qN.put("namespace.prefix", namespace);
-		int size = MongoDB.getDB().getCollection(this.project).find(qN).count();
-		
-		return size;
+		return this.getOrganization(organizationId).getRecordsCount(namespace);
+	}
+
+	/**
+	 * Get number of records of all namespaces published by this organization.
+	 * @param namespace
+	 * @param organizationId
+	 * @return
+	 */
+	public int getRecordsCount(Integer organizationId) {
+		return this.getOrganization(organizationId).getRecordsCount();
 	}
 
 	/**
@@ -174,6 +202,6 @@ public class Project {
 	 * Get string representation of OAI url for this project
 	 */
 	public String getOAI(String namespace) {
-		return "/" + this.project + "/oai?verb=ListIdentifiers&metadataPrefix=" + namespace;
+		return "/" + this.projectId + "/oai?verb=ListIdentifiers&metadataPrefix=" + namespace;
 	}
 }
