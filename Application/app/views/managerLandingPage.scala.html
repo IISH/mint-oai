@@ -1,4 +1,4 @@
-	<!DOCTYPE html>
+<!DOCTYPE html>
 
 <html>
 <head>
@@ -15,14 +15,11 @@
 	  		$(document).ready(function () {
 	  			google.setOnLoadCallback(function() {
 	  				overall = new MintOAIOverallStatistics("overall");
-	  				overall.refresh();
-	  				
 	  				projects = new MintOAIProjects("projects");
-	  				projects.refresh();
 	  				
 	  				$("#refresh").click(function() {
-	  					overall.refresh();
-	  					projects.refresh();
+		  				projects.refresh();
+		  				overall = new MintOAIOverallStatistics("overall");
 	  				})
 	  			});
 	  		});
@@ -30,92 +27,35 @@
 </head>
 
 <body class="gradient">
-    <div class="wrapper">
+	<div class="wrapper">
 		<div class="navbar">
 			<div class="navbar-inner">
 				<a class="brand" href="#">Mint OAI Repository</a>
 				<button id="refresh" style="float: right" class="btn">Refresh</button>
 			</div>
 		</div>
-    	<div class="container">
- 			<div class="well">
-	 				<div class="row">
-		 			<div id="projects" class="span3">
-		 			</div>
-	     	 		<div id="overall" class="span8">
-			 		</div>
-		 		</div>
-	 		</div>
+		<div class="container">
+			<div class="well">
+				<div class="row">
+					<div id="projects" class="span3"></div>
+					<div id="overall" class="span8"></div>
+				</div>
+			</div>
 		</div>
 	</div>
 
-	<div id="projectStatistics" class="modal hide fade" style="min-width: 800px">
-	  <div class="modal-header">
-	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-	    <h3 id="myModalLabel">Modal header</h3>
-	  </div>			
-	  <div class="modal-body">
-	  </div>
+	<div class="push">
+		<!--//-->
 	</div>
 
- 	<div id = "statsModal" class="modal hide fade" style="width:800px; height:700px; max-height:600px">
-	    <div  id = "modalHeader" class="modal-header">
-	    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-	    <h3 id="modalHeaderText"></h3>
-	    </div>
-	    <div class="modal-body">
-			<div class="row">
-			<div id="modalStat1" class="span2">
-					<div class="stat">
-						<span id="spanOrgsStats" class="stat-value">0</span>Organizations
-					</div>
-				</div>
-				<div id="modalStat2" class="span2">
-					<div class="stat">
-						<span id="spanPubsStats" class="stat-value">0</span>Publications
-					</div>
-				</div>
-				<div id="modalStat3" class="span2">
-					<div class="stat">
-						<span id="spanDupsStats" class="stat-value">0</span>Duplicates
-					</div>
-				</div>
-				<div id="modalStat4" class="span2">
-					<div class="stat">
-						<span id="spanRecsStats" class="stat-value">0</span> Unique Records
-					</div>
-				</div>
-			</div>
-			<div class="row">
-				<div class="alert span9 alert-info">
-					<strong id="latestDateHero"></strong>
-					Was the last time that a publication occured for this specific repository.
-				</div>
-			</div>
-			<div id = "pieCharts" class="row">
-				<div class="well span9"">
-					<legend>Distribution of Records among Organizations</legend>
-					<div id="orgViz">
-					</div>
-				</div>
-			</div>
-			<div class="row">
-				
-			</div>
-	    </div>
-	    <div class="modal-footer">
-	     <button class="btn btn-danger" data-dismiss="modal" aria-hidden="true">Close</button>
-	    </div>
-   </div>
-
- 	<div class="push"><!--//--></div>
-
 	<footer>
-	     <div class="container-fluid">
-	     	<div class="row">
-        		<p class="span2">Powered By <a href="http://mint.image.ece.ntua.gr/" rel="author">Mint</a>.</p>
-        	</div>
-      </div>
+		<div class="container-fluid">
+			<div class="row">
+				<p class="span2">
+					Powered By <a href="http://mint.image.ece.ntua.gr/" rel="author">Mint</a>.
+				</p>
+			</div>
+		</div>
 	</footer>
 </body>
 

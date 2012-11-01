@@ -3,15 +3,25 @@
 function MintOAIProjects(id) {
 	var self = this;
 	
-	this.id = id;
-	this.container = $("#" + id);
+	if(id instanceof jQuery) {
+		this.id = "overall-statistics";
+		this.container = id;
+	} else {
+		this.id = id;
+		this.container = $("#" + id);		
+	}
+
+	this.container.empty();
 
 	// header
-	this.container.empty();
+	
 	var legend = $("<legend>").text("Projects").appendTo(this.container);
+	$("<i>").addClass("icon-signal").css({ float: "right", cursor: "pointer" }).appendTo(legend).click(function () {	
+		new MintOAIOverallStatistics("overall");
+	}).attr("title", "Overall statistics").tooltip();
 	
 	// loading page
-	this.loading = $("<div>").attr("id", id + "-loading").appendTo(this.container);
+	this.loading = $("<div>").attr("id", this.id + "-loading").appendTo(this.container);
 	$("<div>").addClass("spinner").appendTo(this.loading);
 	
 	// contents
@@ -19,6 +29,8 @@ function MintOAIProjects(id) {
 	var projectsContainer = $("<div>").addClass("row").appendTo(this.contents);
 	var projects = $("<div>").addClass("span3").appendTo(projectsContainer);
 	this.projects = $("<div>").attr("id", id + "-projects").addClass("project-list").appendTo(projects);
+	
+	this.refresh();
 }
 
 MintOAIProjects.prototype.refresh = function() {
@@ -56,22 +68,8 @@ MintOAIProjects.prototype.projectDiv = function(project) {
 	var title = project.projectName;
 	if(project.title != undefined) title = project.title;
 	
-	$("<i>").addClass("icon-signal").css({ float: "right", cursor: "pointer" }).appendTo(div).click(function () {
-		var header = $("#projectStatistics").find(".modal-header > h3");
-		var body = $("#projectStatistics").find(".modal-body");
-	
-		header.empty()
-			.append($("<span>").text("Statistics for " + title))
-			.append($("<span>").css("color", "silver").text(" (" + project.projectName + ")"));
-		
-		self.projectStatistics = new MintOAIProjectStatistics(project.projectName, body);
-
-		$("#projectStatistics").modal("show").css({
-		    width: 'auto',
-		    'margin-left': function () {
-		        return -($(this).width() / 2);
-		    }
-		});
+	$("<i>").addClass("icon-signal").css({ float: "right", cursor: "pointer" }).appendTo(div).click(function () {	
+		self.projectStatistics = new MintOAIProjectStatistics(project, $("#overall"));
 	}).attr("title", "Statistics for " + title).tooltip();
 
 	$("<div>").append($("<a>").text(title).attr("target", "_blank").attr("href", "http://localhost:9001/manager/statistics/" + project.projectName)).appendTo(div);
@@ -114,6 +112,8 @@ function MintOAIOverallStatistics(id) {
 		"width": "500px",
 		"height": "350px"
 	}).appendTo(visualizationContainer);
+	
+	this.refresh();
 }
 
 MintOAIOverallStatistics.prototype.refresh = function() {
@@ -143,7 +143,7 @@ MintOAIOverallStatistics.prototype.drawVisualization = function() {
 	// Create and populate the data table.
 	$.get("recordsPerProject", function(data) {
 		self.visualization.empty();
-
+		
 		var data1 = google.visualization.arrayToDataTable(data.vals);		
 		var pie = new google.visualization.PieChart(self.visualization[0]);
 		pie.draw(data1, {title: "Records per Project", is3D: true});    
@@ -164,6 +164,7 @@ function MintOAIProjectStatistics(project, id) {
 	}
 	
 	this.project = project;
+	if(this.project.title == undefined) this.project.title = this.project.projectName;
 	
 	this.publications = $("<span>").addClass("stat-value");
 	this.organizations = $("<span>").addClass("stat-value");
@@ -172,7 +173,9 @@ function MintOAIProjectStatistics(project, id) {
 
 	// header
 	this.container.empty();
-	var legend = $("<legend>").text("Project Statistics").appendTo(this.container);
+	var legend = $("<legend>").text("Project Statistics for " + this.project.title)
+		.append($("<span>").css("color", "silver").text(" (" + this.project.projectName + ")"))
+		.appendTo(this.container);
 	
 	// loading page
 	this.loading = $("<div>").attr("id", id + "-loading").appendTo(this.container);
@@ -181,32 +184,28 @@ function MintOAIProjectStatistics(project, id) {
 	
 	// contents
 	this.contents = $("<div>").appendTo(this.container);
-	this.statistics = $("<div>").attr("id", id + "-statistics").addClass("row").css("margin-bottom", "10px").appendTo(this.contents);
-	statistic("Organizations", this.organizations).appendTo(this.statistics).addClass("offset1");
+	this.statistics = $("<div>").attr("id", this.id).addClass("row").css("margin-bottom", "10px").appendTo(this.contents);
+	statistic("Organizations", this.organizations).appendTo(this.statistics);
 	statistic("Publications", this.publications).appendTo(this.statistics);
 	statistic("Duplicates", this.duplicates).appendTo(this.statistics);
 	statistic("Unique Records", this.unique).appendTo(this.statistics);
 	
 	this.latestPublicationDate = $("<strong>");
-	var info = $("<div>").addClass("alert alert-info span9").append($("<span>").text("Date of last publication: ")).append(this.latestPublicationDate);
+	var info = $("<div>").addClass("alert alert-info span7").append($("<span>").text("Date of last publication: ")).append(this.latestPublicationDate);
 	$("<div>").addClass("row").append(info).appendTo(this.contents);
 	
-	aaa = this.latestPublicationDate;
-
-	this.tabs = $("<div>").appendTo(this.contents);
+	this.visualizations = $("<div>").addClass("span7").appendTo($("<div>").addClass("row").appendTo(this.contents));
 	
 	this.refresh();
 }
 
-MintOAIProjectStatistics.prototype.refresh = function(project) {
+MintOAIProjectStatistics.prototype.refresh = function() {
 	var self = this;
-	
-	if(project != undefined) this.project = project;
 	
 	this.loading.show();
 	this.contents.hide();
 	
-	$.get("quickStats/" + this.project, function(data) {
+	$.get("projects/" + this.project.projectName + "/overall", function(data) {
 		self.loading.hide();
 		self.contents.show();
 
@@ -217,75 +216,33 @@ MintOAIProjectStatistics.prototype.refresh = function(project) {
 		
 		self.latestPublicationDate.text(data.latestPublicationDate);
 		
-		self.tabs.empty();
+		self.visualizations.empty();
 		
-		var ul = $("<ul>").addClass("nav nav-tabs").appendTo(self.tabs);
-		var tabContents = $("<div>").addClass("tab-content").appendTo(self.tabs);
 		for(var i in data.namespaces) {
 			var namespace = data.namespaces[i];
-			$("<li>").append($("<a>").attr("href", "#stats-" + namespace).text(namespace)).appendTo(ul);
-			$("<div>").addClass("tab-pane").attr("id", "stats-" + namespace).text("Contents for " + namespace).appendTo(tabContents);
-		}
-		
-		ul.find("a").click(function (e) {
-			e.preventDefault();
-			$(this).tab("show");
-		});
-		
-		ul.find("li:first").addClass("active");
-		tabContents.find(".tab-pane:first").addClass("active");
-	});
-}
-
-MintOAIProjectStatistics.prototype.drawVisualization = function(data) {
-	this.visualization.empty();
-
-	var values = google.visualization.arrayToDataTable(data.values);
-	var container = $("<div>").appendTo(this.visualization);
-	var chart = new google.visualization.PieChart(container);
-	chart.draw(values, {title:"Records per Organization ID", width:600, height:500});
-}
-
-
-// previous methods
-
-function initializeModal(projectName){
-	$.get("quickStats/"+projectName,function(data){
-		$("#modalHeaderText").html('Quick Overview for Project ' + projectName);
-
-		$('#spanOrgsStats').text(data.OrgsNumber);
-		$('#spanRecsStats').text(data.RecordsNumber);
-		$('#spanPubsStats').text(data.ReportsNumber);
-		$('#spanDupsStats').text(data.ConflictsNumber);
-		$('#latestDateHero').text(data.latestDate);
-		$('#pieCharts').empty();
-		
-		for(var i=0;i<data.orgsRecordsCount.length;i++){
-			var tmpPieData = data.orgsRecordsCount[i];
-			var values = tmpPieData.values;
-			var pref = tmpPieData.namespace;
-			var data2 = google.visualization.arrayToDataTable(values);
-			d=document.createElement('div');
-			pd = document.createElement('div');
-			a = document.createElement('a');
-			$(a).text(pref).attr("href", "http://panic.image.ntua.gr:9000/"+projectName+"/oai?verb=ListIdentifiers&metadataPrefix="+pref)
-			.attr("target","_blank");
-			l=document.createElement('legend');
-			$(l).text("Distribution of Records among Organizations for NameSpace ").append(a);
-			$(d).addClass("well span9").append([l,pd]);
 			
-			var pieChart = new google.visualization.PieChart(pd);
-			pieChart.draw(data2, {title:"Records per Organization ID", width:600, height:500});
-
-			$('#pieCharts').append(d);
-		}
-		//var values = data.orgsRecordsCount;
-		//var data2 = google.visualization.arrayToDataTable(values);
-		//var pieChart = new google.visualization.PieChart(document.getElementById('orgViz'));
-		//pieChart.draw(data2, {title:"Records per Organization ID", width:600, height:500,backgroundColor: '#B6C2C6'});
+			$("<legend>").text("Namespace: " + namespace).appendTo(self.visualizations);
+			var container = $("<div>").addClass("span7").css({
+				width: "500px",
+				height: "350px",
+				margin: "0 auto"
+			}).appendTo(self.visualizations);
+			
+			self.drawVisualization(container, namespace);
+		}		
 	});
+}
 
-	$('#statsModal').modal('show');	
+MintOAIProjectStatistics.prototype.drawVisualization = function(container, namespace) {
+	container.empty();
+	container.append($("<div>").addClass("spinner"));
+
+	$.get("projects/" + this.project.projectName + "/recordsPerOrganization/" + namespace, function(data) {
+		toChart(container, data, ["Organization", "Records"], {
+			title: 	"Records per organization",
+			is3D: 	true
+		});
+	});
 }
 
 // utility functions
@@ -309,4 +266,24 @@ function statistic(label, dataContainer) {
 	$("<div>").addClass("stat").appendTo(stat).append(dataContainer).append($("<span>").text(label));
 	
 	return stat;
+}
+
+function toChart(container, data, headers, options) {
+	container.empty();
+	
+	if(headers == undefined) headers = [ "Key", "Value"];
+	
+	var values = [];
+	values.push(headers);
+	
+	for(var key in data) {
+		var value = data[key];
+		values.push([key, value]);
+	}
+	
+	var dataTable = google.visualization.arrayToDataTable(values);
+	var pieChart = new google.visualization.PieChart(container[0]);
+	pieChart.draw(dataTable, options);
+	
+	return container;
 }

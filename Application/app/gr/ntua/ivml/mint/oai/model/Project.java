@@ -169,4 +169,11 @@ public class Project {
 		
 		return map;
 	}
+	
+	/**
+	 * Get string representation of OAI url for this project
+	 */
+	public String getOAI(String namespace) {
+		return "/" + this.project + "/oai?verb=ListIdentifiers&metadataPrefix=" + namespace;
+	}
 }

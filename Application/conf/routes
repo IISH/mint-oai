@@ -15,7 +15,10 @@ GET		/manager/statistics/:proj		controllers.Manager.loadStats(proj: String)
 GET		/:collection/oai				controllers.OAI.show(collection: String)
 
 # JSON data
-GET		/manager/overall				controllers.Manager.getOverall()
-GET		/manager/projects				controllers.Manager.getProjects()
-GET		/manager/recordsPerProject		controllers.Manager.getRecordsPerProject()
-GET		/manager/quickStats/:proj		controllers.Manager.getQuickStats(proj: String)
+
+GET		/manager/overall									controllers.Manager.getOverall()
+GET		/manager/recordsPerProject							controllers.Manager.getRecordsPerProject()
+
+GET		/manager/projects									controllers.Manager.getProjects()
+GET		/manager/projects/:proj/overall						controllers.Manager.getOverallForProject(proj: String)
+GET		/manager/projects/:proj/recordsPerOrganization/:ns	controllers.Manager.getRecordsPerOrganization(proj: String, ns: String)

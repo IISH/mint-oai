@@ -91,72 +91,8 @@ public class Manager extends Controller {
 		return ok(com.mongodb.util.JSON.serialize(res));
 	}
 	
-	
-	public static Result getQuickStats(String proj){
-		Project project = new Project(proj);
-
-		List<String> namespaces = project.getNamespaces();
-		
-		BasicDBObject res = new BasicDBObject();
-
-		res.put("namespaces", namespaces);
-		res.put("organizations", project.getOrganizationCount());
-		res.put("unique", project.getUniqueRecordsCount());
-		res.put("publications", project.getReportsCount());
-		res.put("duplicates", project.getConflicts());
-		res.put("latestPublicationDate", Manager.formatDate(project.getLatestPublicationDate()));
-		
-		BasicDBObject recordCounts = new BasicDBObject();
-		for(String namespace: namespaces) {
-			recordCounts.append(namespace, project.getRecordsCountPerOrganization(namespace));
-		}
-
+	public static Result getProjects() {
 		response().setContentType("application/json");
-		return ok(com.mongodb.util.JSON.serialize(res));
-	}
-	
-	public static Result loadStats(String proj){
-		return ok(ManagerLoadDetailedStats.render(proj));
-	}
-	
-	public static Result landingPage(){
-		try {
-			return ok(managerLandingPage.render());
-		} catch(Exception e) {
-			return internalServerError(serverUnavailable.render(e));
-		}
-	}
-
-	public static Result getOverall(){
-		BasicDBObject result = new BasicDBObject();
-		response().setContentType("application/json");
-
-		long unique = 0;
-		int repositories = 0;
-		int organizations = 0;
-		for(String setName:MongoDB.getDB().getCollectionNames()){
-			if(!setName.equals("reports") && !setName.equals("conflicts") && !setName.equals("system.indexes") 
-						&& !setName.equals("fs.files") && !setName.equals("fs.chunks") && !setName.equals("metadata")){
-							unique += MongoDB.getDB().getCollection(setName).count();
-							repositories++;
-							ArrayList<Object> dists = (ArrayList<Object>) MongoDB.getDB().getCollection(setName).distinct("orgId");
-							organizations += dists.size();
-			}
-		}
-		
-		String duplicates = "" + MongoDB.getDB().getCollection("conflicts").count();
-		
-		result.put("repositories", repositories);
-		result.put("organizations", organizations);
-		result.put("unique", unique);
-		result.put("duplicates", duplicates);
-		
-		return ok(com.mongodb.util.JSON.serialize(result));
-	}
-	
-	public static Result getProjects(){
-		response().setContentType("application/json");
-		
 		BasicDBList projects = Project.getAll();
 
 		BasicDBObject list = new BasicDBObject();
@@ -184,8 +120,67 @@ public class Manager extends Controller {
 		
 		return ok(com.mongodb.util.JSON.serialize(list));
 	}
+
+	public static Result getOverall() {
+		response().setContentType("application/json");
+		BasicDBObject result = new BasicDBObject();
+
+		long unique = 0;
+		int repositories = 0;
+		int organizations = 0;
+		for(String setName:MongoDB.getDB().getCollectionNames()){
+			if(!setName.equals("reports") && !setName.equals("conflicts") && !setName.equals("system.indexes") 
+						&& !setName.equals("fs.files") && !setName.equals("fs.chunks") && !setName.equals("metadata")){
+							unique += MongoDB.getDB().getCollection(setName).count();
+							repositories++;
+							ArrayList<Object> dists = (ArrayList<Object>) MongoDB.getDB().getCollection(setName).distinct("orgId");
+							organizations += dists.size();
+			}
+		}
+		
+		String duplicates = "" + MongoDB.getDB().getCollection("conflicts").count();
+		
+		result.put("repositories", repositories);
+		result.put("organizations", organizations);
+		result.put("unique", unique);
+		result.put("duplicates", duplicates);
+		
+		return ok(com.mongodb.util.JSON.serialize(result));
+	}
+
+	public static Result getOverallForProject(String proj){
+		response().setContentType("application/json");
+		Project project = new Project(proj);
+
+		List<String> namespaces = project.getNamespaces();
+		
+		BasicDBObject res = new BasicDBObject();
+
+		res.put("namespaces", namespaces);
+		res.put("organizations", project.getOrganizationCount());
+		res.put("unique", project.getUniqueRecordsCount());
+		res.put("publications", project.getReportsCount());
+		res.put("duplicates", project.getConflicts());
+		res.put("latestPublicationDate", Manager.formatDate(project.getLatestPublicationDate()));
+		
+		return ok(com.mongodb.util.JSON.serialize(res));
+	}
+	
+	public static Result loadStats(String proj){
+		return ok(ManagerLoadDetailedStats.render(proj));
+	}
+	
+	public static Result landingPage(){
+		try {
+			return ok(managerLandingPage.render());
+		} catch(Exception e) {
+			return internalServerError(serverUnavailable.render(e));
+		}
+	}
 	
 	public static Result getRecordsPerProject(){
+		response().setContentType("application/json");
+
 		String[] headers = new String[2];
 		headers[0] = "projects";
 		headers[1] = "records";
@@ -210,10 +205,20 @@ public class Manager extends Controller {
 		returnedVals.add(vals);
 		BasicDBObject obj = new BasicDBObject();
 		obj.put("vals", returnedVals);
-		response().setContentType("application/json");
+
 		return ok(com.mongodb.util.JSON.serialize(obj));
 	}
-	
+
+	public static Result getRecordsPerOrganization(String proj, String namespace) {
+		response().setContentType("application/json");
+		Project project = new Project(proj);
+		
+		BasicDBObject result = new BasicDBObject();
+		result.putAll(project.getRecordsCountPerOrganization(namespace));
+		
+		return ok(com.mongodb.util.JSON.serialize(result));
+	}
+
 	// utility
 	
 	private static String formatDate(Date date) {
