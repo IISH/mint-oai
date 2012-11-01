@@ -1,6 +1,7 @@
 package controllers;
 
 import gr.ntua.ivml.mint.oai.model.Project;
+import gr.ntua.ivml.mint.oai.model.Report;
 import gr.ntua.ivml.mint.oai.util.MongoDB;
 import gr.ntua.ivml.mint.oai.util.StringUtils;
 
@@ -35,6 +36,13 @@ public class Projects extends Controller {
 	}
 	
 	//json data
+	
+	public static Result getReportsPerOrganization(String proj, String orgId){
+		Report rep = new Report(proj);
+		BasicDBObject result = new BasicDBObject();
+		result.put("values", rep.getReports(orgId));
+		return ok(com.mongodb.util.JSON.serialize(result));
+	}
 	
 	public static Result getProjects() {
 		response().setContentType("application/json");

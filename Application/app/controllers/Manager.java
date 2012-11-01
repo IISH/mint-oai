@@ -9,6 +9,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
 
 import gr.ntua.ivml.mint.oai.model.Project;
+import gr.ntua.ivml.mint.oai.model.Report;
 import gr.ntua.ivml.mint.oai.util.MongoDB;
 import gr.ntua.ivml.mint.oai.util.StringUtils;
 import play.mvc.Controller;
