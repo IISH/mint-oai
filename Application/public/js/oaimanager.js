@@ -47,7 +47,7 @@ MintOAIProjects.prototype.loadProjects = function() {
 	this.contents.hide();
 	
 	// Create and populate the data table.
-	$.get("projects", function(projects) {
+	$.get("/manager/projects", function(projects) {
 		self.projects.empty();
 
 		for(var i in projects) {
@@ -122,7 +122,7 @@ MintOAIOverallStatistics.prototype.refresh = function() {
 	this.loading.show();
 	this.contents.hide();
 	
-	$.get("overall", function(data) {
+	$.get("/manager/overall", function(data) {
 		self.loading.hide();
 		self.contents.show();
 
@@ -141,7 +141,7 @@ MintOAIOverallStatistics.prototype.drawVisualization = function() {
 	this.visualization.append($("<div>").addClass("spinner"));
 	
 	// Create and populate the data table.
-	$.get("recordsPerProject", function(data) {
+	$.get("/manager/recordsPerProject", function(data) {
 		self.visualization.empty();
 		
 		var data1 = google.visualization.arrayToDataTable(data.vals);		
@@ -205,7 +205,7 @@ MintOAIProjectStatistics.prototype.refresh = function() {
 	this.loading.show();
 	this.contents.hide();
 	
-	$.get("projects/" + this.project.projectName + "/overall", function(data) {
+	$.get("/manager/projects/" + this.project.projectName + "/overall", function(data) {
 		self.loading.hide();
 		self.contents.show();
 
@@ -237,13 +237,97 @@ MintOAIProjectStatistics.prototype.drawVisualization = function(container, names
 	container.empty();
 	container.append($("<div>").addClass("spinner"));
 
-	$.get("projects/" + this.project.projectName + "/recordsPerOrganization/" + namespace, function(data) {
+	$.get("/manager/projects/" + this.project.projectName + "/recordsPerOrganization/" + namespace, function(data) {
 		toChart(container, data, ["Organization", "Records"], {
 			title: 	"Records per organization",
 			is3D: 	true
 		});
 	});
 }
+
+//OAI Project Organization list
+
+function MintOAIOrganizations(project, id) {
+	var self = this;
+	
+	if(id instanceof jQuery) {
+		this.id = "overall-organizations";
+		this.container = id;
+	} else {
+		this.id = id;
+		this.container = $("#" + id);		
+	}
+
+	this.project = project;
+	this.container.empty();
+
+	// header
+	
+	var legend = $("<legend>").text("Organizations").appendTo(this.container);
+	$("<i>").addClass("icon-signal").css({ float: "right", cursor: "pointer" }).appendTo(legend).click(function () {	
+		new MintOAIProjectStatistics(project, "overall");
+	}).attr("title", "Overall statistics").tooltip();
+	
+	// loading page
+	this.loading = $("<div>").attr("id", this.id + "-loading").appendTo(this.container);
+	$("<div>").addClass("spinner").appendTo(this.loading);
+	
+	// contents
+	this.contents = $("<div>").appendTo(this.container);
+	var organizationsContainer = $("<div>").addClass("row").appendTo(this.contents);
+	var organizations = $("<div>").addClass("span3").appendTo(organizationsContainer);
+	this.organizations = $("<div>").attr("id", id + "-organizations").addClass("organization-list").appendTo(organizations);
+	
+	this.refresh();
+}
+
+MintOAIOrganizations.prototype.refresh = function() {
+	this.loadOrganizations();
+}
+
+MintOAIOrganizations.prototype.loadOrganizations = function() {
+	var self = this;
+	
+	this.organizations.empty();
+	this.organizations.append($("<div>").addClass("spinner"));
+	
+	this.loading.show();
+	this.contents.hide();
+	
+	// Create and populate the data table.
+	$.get("/manager/projects/" + self.project.projectName + "/organizations", function(organizations) {
+		self.organizations.empty();
+		
+		console.log(organizations);
+
+		for(var i in organizations) {
+			var organization = organizations[i];
+			console.log(organization);
+			self.organizations.append(self.organizationDiv(organization));
+		}
+
+		self.loading.hide();
+		self.contents.show();		
+	});    
+}
+
+MintOAIOrganizations.prototype.organizationDiv = function(organization) {
+	var self = this;
+	
+	var div = $("<div>").addClass("organization");
+	
+	var title = organization.name;
+	if(organization.name != undefined) title = organization.id;
+	
+	$("<i>").addClass("icon-signal").css({ float: "right", cursor: "pointer" }).appendTo(div).click(function () {	
+		self.projectStatistics = new MintOAIProjectStatistics(this.project, $("#overall"));
+	}).attr("title", "Statistics for " + title).tooltip();
+
+	$("<div>").append($("<a>").text(title).attr("target", "_blank")).appendTo(div);
+	
+	return div;
+}
+
 
 // utility functions
 

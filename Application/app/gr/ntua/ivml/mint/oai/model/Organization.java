@@ -61,7 +61,7 @@ public class Organization {
 	public int getRecordsCount() {
 		BasicDBObject qN = new BasicDBObject();
 		qN.put("orgId", organizationId);
-		int size = MongoDB.getDB().getCollection(this.getProject().getProjectId()).find(qN).count();
+		int size = MongoDB.getDB().getCollection(this.getProject().getId()).find(qN).count();
 		
 		return size;
 	}
@@ -76,7 +76,7 @@ public class Organization {
 		BasicDBObject qN = new BasicDBObject();
 		qN.put("orgId", organizationId);
 		qN.put("namespace.prefix", namespace);
-		int size = MongoDB.getDB().getCollection(this.getProject().getProjectId()).find(qN).count();
+		int size = MongoDB.getDB().getCollection(this.getProject().getId()).find(qN).count();
 		
 		return size;
 	}

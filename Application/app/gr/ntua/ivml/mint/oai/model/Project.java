@@ -1,7 +1,5 @@
 package gr.ntua.ivml.mint.oai.model;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -26,7 +24,7 @@ public class Project {
 	 * Get json object with metadata for all projects in OAI.
 	 * @return
 	 */
-	public static BasicDBList getAll() {
+	public static BasicDBList getProjects() {
 		BasicDBObject q = new BasicDBObject();
 		q.put("id", "projects");
 		BasicDBObject projects = (BasicDBObject) MongoDB.getDB().getCollection("metadata").findOne(q);
@@ -38,7 +36,15 @@ public class Project {
 	 * Get the project id which corresponds to the project mongo collection.
 	 * @return
 	 */
-	public String getProjectId() {
+	public String getId() {
+		return this.projectId;
+	}
+	
+	/**
+	 * Get the project title or the project id if title is not set
+	 * @return
+	 */
+	public String getTitle() {
 		return this.projectId;
 	}
 	
