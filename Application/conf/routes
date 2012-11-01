@@ -22,6 +22,7 @@ GET		/manager/projects									controllers.Projects.getProjects()
 GET		/manager/projects/:proj/overall						controllers.Projects.getOverall(proj: String)
 GET		/manager/projects/:proj/organizations				controllers.Projects.getOrganizations(proj: String)
 GET		/manager/projects/:proj/recordsPerOrganization/:ns	controllers.Projects.getRecordsPerOrganization(proj: String, ns: String)
+GET		/manager/:proj/:org/reports							controllers.Projects.getReportsPerOrganization(proj: String, org: String)
 GET		/manager/:proj/timeline/:org						controllers.Projects.getOrgTimeLine(proj: String, org: String)
 
 # OAI
