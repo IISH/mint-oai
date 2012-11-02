@@ -46,7 +46,7 @@ public class Projects extends Controller {
 	
 	public static Result getProjects() {
 		response().setContentType("application/json");
-		BasicDBList projects = Project.getProjects();
+		BasicDBObject projects = Project.getProjects();
 
 		BasicDBObject list = new BasicDBObject();
 		for(String setName: MongoDB.getDB().getCollectionNames()){
@@ -55,8 +55,8 @@ public class Projects extends Controller {
 					&& !setName.equals("fs.files") && !setName.equals("fs.chunks") && !setName.equals("metadata")){
 
 				BasicDBObject project = null;
-				for(Object o: projects) {
-					BasicDBObject p = ((BasicDBObject) o);
+				for(String key: projects.keySet()) {
+					BasicDBObject p = (BasicDBObject) projects.get(key);
 					if(p.getString("projectName").equals(setName)) {
 						project = p;
 					}
@@ -100,10 +100,17 @@ public class Projects extends Controller {
 		response().setContentType("application/json");
 		Project project = new Project(proj);
 
-		List<String> namespaces = project.getNamespaces();
+		List<String> prefixes = project.getNamespaces();
 		
 		BasicDBObject res = new BasicDBObject();
 
+		BasicDBList namespaces = new BasicDBList();
+		for(String prefix: prefixes) {
+			BasicDBObject namespace = new BasicDBObject();
+			namespace.put("prefix", prefix);
+			namespace.put("oai", project.getOAIUrl(prefix));
+			namespaces.add(namespace);
+		}
 		res.put("namespaces", namespaces);
 		res.put("organizations", project.getOrganizationCount());
 		res.put("unique", project.getUniqueRecordsCount());

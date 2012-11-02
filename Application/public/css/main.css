@@ -65,6 +65,31 @@ footer a:hover {
 	border-radius: 5px;
 }
 
+.sidebar {
+	background: #f5f7f7;
+}
+
+.list {
+	max-height: 300px;
+	overflow-y: auto;
+}
+
+.list > dt {
+	width: 80px;
+}
+
+.list > dd {
+	margin-left: 100px;
+}
+
+.list > div {
+	padding: 5px;
+}
+
+.list > div:hover {
+	background: white;
+}
+
 /* content */
 
 .stat-value {
@@ -100,4 +125,21 @@ footer a:hover {
 	display: inline-block;
 	width: 16px;
 	height: 16px;
+}
+
+.oai-action {
+	background: url(../images/oai.png);
+	display: inline-block;
+	width: 32px;
+	height: 32px;
+}
+
+.organization-list {
+	
+}
+
+.organization {
+	padding-top: 10px;
+	padding-bottom: 10px;
+	border-bottom:1px solid silver;
 }

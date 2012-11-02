@@ -28,7 +28,7 @@ function MintOAIProjects(id) {
 	this.contents = $("<div>").appendTo(this.container);
 	var projectsContainer = $("<div>").addClass("row").appendTo(this.contents);
 	var projects = $("<div>").addClass("span3").appendTo(projectsContainer);
-	this.projects = $("<div>").attr("id", id + "-projects").addClass("project-list").appendTo(projects);
+	this.projects = $("<div>").attr("id", id + "-projects").addClass("list").appendTo(projects);
 	
 	this.refresh();
 }
@@ -194,7 +194,7 @@ function MintOAIProjectStatistics(project, id) {
 	var info = $("<div>").addClass("alert alert-info span7").append($("<span>").text("Date of last publication: ")).append(this.latestPublicationDate);
 	$("<div>").addClass("row").append(info).appendTo(this.contents);
 	
-	this.visualizations = $("<div>").addClass("span7").appendTo($("<div>").addClass("row").appendTo(this.contents));
+	this.visualizations = $("<div>").addClass("span8").appendTo($("<div>").addClass("row").appendTo(this.contents));
 	
 	this.refresh();
 }
@@ -221,14 +221,15 @@ MintOAIProjectStatistics.prototype.refresh = function() {
 		for(var i in data.namespaces) {
 			var namespace = data.namespaces[i];
 			
-			$("<legend>").text("Namespace: " + namespace).appendTo(self.visualizations);
-			var container = $("<div>").addClass("span7").css({
+			var legend = $("<legend>").text("Namespace: " + namespace.prefix).appendTo(self.visualizations);
+			$("<a>").addClass("oai-action").css("float", "right").attr("title", "OAI url for " + namespace.prefix).attr("href", namespace.oai).attr("target", "_blank").appendTo(legend);
+			var container = $("<div>").addClass("span8").css({
 				width: "500px",
 				height: "350px",
 				margin: "0 auto"
 			}).appendTo(self.visualizations);
 			
-			self.drawVisualization(container, namespace);
+			self.drawVisualization(container, namespace.prefix);
 		}		
 	});
 }
@@ -241,7 +242,7 @@ MintOAIProjectStatistics.prototype.drawVisualization = function(container, names
 		toChart(container, data, ["Organization", "Records"], {
 			title: 	"Records per organization",
 			is3D: 	true
-		});
+		});		
 	});
 }
 
@@ -263,10 +264,20 @@ function MintOAIOrganizations(project, id) {
 
 	// header
 	
+	this.sortDirection = 1;
+
+	var sortName = $("<a>").text("Name").click(function() { self.sortByName() });
+	var sortRecords = $("<a>").text("Records").click(function() { self.sortByRecords() });
+	var sortDate = $("<a>").text("Publication Date").click(function() { self.sortByDate() });
+	
 	var legend = $("<legend>").text("Organizations").appendTo(this.container);
-	$("<i>").addClass("icon-signal").css({ float: "right", cursor: "pointer" }).appendTo(legend).click(function () {	
-		new MintOAIProjectStatistics(project, "overall");
-	}).attr("title", "Overall statistics").tooltip();
+	$("<div>").addClass("btn-group").css("float", "right")
+	.append($("<button>").addClass("btn btn-small dropdown-toggle").attr("data-toggle", "dropdown").append($("<span>").text("Sort by ").append($("<span>").addClass("caret"))))
+	.append($("<ul>").addClass("dropdown-menu")
+			.append($("<li>").append(sortName))
+			.append($("<li>").append(sortRecords))
+			.append($("<li>").append(sortDate))
+	).appendTo(legend);
 	
 	// loading page
 	this.loading = $("<div>").attr("id", this.id + "-loading").appendTo(this.container);
@@ -276,7 +287,7 @@ function MintOAIOrganizations(project, id) {
 	this.contents = $("<div>").appendTo(this.container);
 	var organizationsContainer = $("<div>").addClass("row").appendTo(this.contents);
 	var organizations = $("<div>").addClass("span3").appendTo(organizationsContainer);
-	this.organizations = $("<div>").attr("id", id + "-organizations").addClass("organization-list").appendTo(organizations);
+	this.organizations = $("<div>").attr("id", id + "-organizations").addClass("list").appendTo(organizations);
 	
 	this.refresh();
 }
@@ -298,11 +309,8 @@ MintOAIOrganizations.prototype.loadOrganizations = function() {
 	$.get("/manager/projects/" + self.project.projectName + "/organizations", function(organizations) {
 		self.organizations.empty();
 		
-		console.log(organizations);
-
 		for(var i in organizations) {
 			var organization = organizations[i];
-			console.log(organization);
 			self.organizations.append(self.organizationDiv(organization));
 		}
 
@@ -315,19 +323,46 @@ MintOAIOrganizations.prototype.organizationDiv = function(organization) {
 	var self = this;
 	
 	var div = $("<div>").addClass("organization");
+	div.data("organization", organization);
 	
 	var title = organization.name;
 	if(organization.name != undefined) title = organization.id;
 	
-	$("<i>").addClass("icon-signal").css({ float: "right", cursor: "pointer" }).appendTo(div).click(function () {	
-		self.projectStatistics = new MintOAIProjectStatistics(this.project, $("#overall"));
-	}).attr("title", "Statistics for " + title).tooltip();
-
-	$("<div>").append($("<a>").text(title).attr("target", "_blank")).appendTo(div);
+	$("<div>").appendTo(div)
+		.append($("<a>").text(title).attr("target", "_blank"))
+		.append($("<div>").append($("<small>").addClass("muted").css("float", "right").text("" + organization.records + " records"))
+				.append($("<small>").addClass("muted").text(organization.latestPublicationDate)));
 	
 	return div;
 }
 
+MintOAIOrganizations.prototype.sortByName = function() {
+	var self = this;
+	this.organizations.find(".organization").sortElements(function(a, b) {
+		console.log(a, b);
+		return ($(a).data("organization").name < $(b).data("organization").name)?self.sortDirection:-1*self.sortDirection;
+	});
+	this.sortDirection *= -1;
+}
+
+MintOAIOrganizations.prototype.sortByRecords = function() {
+	var self = this;
+	this.organizations.find(".organization").sortElements(function(a, b) {
+		return ($(a).data("organization").records < $(b).data("organization").records)?self.sortDirection:-1*self.sortDirection;
+	});
+	this.sortDirection *= -1;
+}
+
+MintOAIOrganizations.prototype.sortByDate = function() {
+	var self = this;
+	this.organizations.find(".organization").sortElements(function(a, b) {
+		var dateA = Date.parseExact($(a).data("organization").latestPublicationDate, "dd/MM/yyyy HH:mm:ss");
+		var dateB = Date.parseExact($(b).data("organization").latestPublicationDate, "dd/MM/yyyy HH:mm:ss");
+		console.log(dateA, dateB, dateA < dateB);
+		return (dateA < dateB)?self.sortDirection:-1 * self.sortDirection;
+	});
+	this.sortDirection *= -1;
+}
 
 // utility functions
 

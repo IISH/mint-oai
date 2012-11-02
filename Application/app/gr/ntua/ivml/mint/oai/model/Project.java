@@ -15,6 +15,7 @@ import com.mongodb.DBCursor;
 
 public class Project {
 	private String projectId = null;
+	private BasicDBObject metadata = null;
 	
 	public Project(String projectId) {
 		this.projectId = projectId;
@@ -24,12 +25,20 @@ public class Project {
 	 * Get json object with metadata for all projects in OAI.
 	 * @return
 	 */
-	public static BasicDBList getProjects() {
+	public static BasicDBObject getProjects() {
+		BasicDBObject results = new BasicDBObject();
+		
 		BasicDBObject q = new BasicDBObject();
 		q.put("id", "projects");
-		BasicDBObject projects = (BasicDBObject) MongoDB.getDB().getCollection("metadata").findOne(q);
+		BasicDBObject metadata = (BasicDBObject) MongoDB.getDB().getCollection("metadata").findOne(q);
+		BasicDBList projects = (BasicDBList) metadata.get("projects");
+		
+		for(Object o: projects) {
+			BasicDBObject project = (BasicDBObject) o;
+			results.put(project.getString("projectName"), project);
+		}
 
-		return (BasicDBList) projects.get("projects");
+		return results;
 	}
 	
 	/**
@@ -39,13 +48,37 @@ public class Project {
 	public String getId() {
 		return this.projectId;
 	}
+
+	/**
+	 * Get project metadata. Caches result if not null.
+	 * @return if no metadata exists, returns empty object to avoid null result and result is not cached.
+	 */
+	public BasicDBObject getMetadata() {
+		if(this.metadata == null) {
+			BasicDBObject projects = Project.getProjects();
+			this.metadata = (BasicDBObject) projects.get(this.projectId);
+		}
+		
+		// return empty object to avoid null result;
+		return (this.metadata != null)?this.metadata:new BasicDBObject();
+	}
 	
 	/**
 	 * Get the project title or the project id if title is not set
 	 * @return
 	 */
 	public String getTitle() {
-		return this.projectId;
+		String title = this.getMetadata().getString("title");
+		return (title != null)?title:this.projectId;
+	}
+	
+	/**
+	 * Get the project description.
+	 * @return null if description is not set.
+	 */
+	public String getDescription() {
+		String decription = this.getMetadata().getString("description");
+		return decription;
 	}
 	
 	/**
@@ -207,7 +240,7 @@ public class Project {
 	/**
 	 * Get string representation of OAI url for this project
 	 */
-	public String getOAI(String namespace) {
+	public String getOAIUrl(String namespace) {
 		return "/" + this.projectId + "/oai?verb=ListIdentifiers&metadataPrefix=" + namespace;
 	}
 }
