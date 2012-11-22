@@ -2,9 +2,14 @@ package controllers;
 
 import java.util.Map;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.mongodb.BasicDBObject;
 
 import gr.ntua.ivml.mint.oai.model.Project;
+import gr.ntua.ivml.mint.oai.util.Config;
+import gr.ntua.ivml.mint.oai.util.JSONReader;
 import play.mvc.Controller;
 import play.mvc.Result;
 import views.html.*;
@@ -25,6 +30,14 @@ public class Administration extends Controller {
 	public static Result projects() {
 		response().setContentType("application/json");
 		return ok(com.mongodb.util.JSON.serialize(Project.getProjects()));
+	}
+	
+	public static Result organizations(String projectName) throws JSONException {
+		response().setContentType("application/json");
+		
+		Project project = new Project(projectName);
+		JSONObject organizations = project.fetchOrganizationsMetadata();		
+		return ok(organizations.toString(2));	
 	}
 	
 	public static Result updateDetails(String projectName) {

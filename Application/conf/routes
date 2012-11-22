@@ -34,6 +34,7 @@ GET		/:collection/oai									controllers.OAI.show(collection: String)
 GET		/admin												controllers.Administration.landingPage()
 GET		/admin/												controllers.Administration.landingPage()
 GET		/admin/projects										controllers.Administration.projects()
+GET		/admin/projects/:proj/organizations					controllers.Administration.organizations(proj: String)
 
 # Administration updates
 

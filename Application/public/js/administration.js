@@ -1,11 +1,33 @@
-function MintOAIAdministration(projects, detail) {
+function MintOAIAdministration(projects, main) {
 	var self = this;
 	this.projectsContainer = $("#" + projects);
-	this.detailsContainer = $("#" + detail);
+	this.mainContainer = $("#" + main);
+	this.mainContainer.empty();
+	
+	this.tabsContainer = $("<div>").appendTo(this.mainContainer);
+	this.tabsContainer.empty();
+	this.legend = $("<legend>").appendTo(this.tabsContainer);
+	var ul = $("<ul>").appendTo(this.tabsContainer).addClass("nav nav-tabs");
+	$("<li>").appendTo(ul).append($("<a>").attr("data-toggle", "tab").attr("href", "#administration-details").text("Details"));
+	$("<li>").appendTo(ul).append($("<a>").attr("data-toggle", "tab").attr("href", "#administration-organizations").text("Organizations"));
+	
+	this.tabsContainer.find("a").click(function (e) {
+		console.log(this);
+		e.preventDefault();
+		$(this).tab('show');
+	});
+	
+	var tabs = $("<div>").addClass("tab-content").appendTo(this.tabsContainer);
+	this.detailsContainer = $("<div>").addClass("tab-pane active").attr("id", "administration-details").appendTo(tabs);
+	this.organizationsContainer = $("<div>").addClass("tab-pane").attr("id", "administration-organizations").appendTo(tabs).text("ORgs");
+	this.tabsContainer.find("a:first").tab('show');
+	this.tabsContainer.hide();
 	
 	this.projects = new MintOAIProjects(projects, {
 		showStatistics: false,
 		click: function(project) {
+			self.legend.text("Project Id: " + project.projectName);
+			self.tabsContainer.show();
 			self.showProjectEditForm(project, self.detailsContainer);
 		}
 	});
@@ -13,12 +35,7 @@ function MintOAIAdministration(projects, detail) {
 
 MintOAIAdministration.prototype.showProjectEditForm = function(project, container) {
 	var self = this;
-	
 	container.empty();
-	container.append($("<legend>").text("Project Id: " + project.projectName));
-	var dl = $("<dl>").addClass("dl-horizontal list").appendTo(container);
-	
-	console.log(project);
 	
 	project = $.extend({}, {
 		title: "",
@@ -27,6 +44,7 @@ MintOAIAdministration.prototype.showProjectEditForm = function(project, containe
 		mintURL: "",
 	}, project);
 	
+	var dl = $("<dl>").addClass("dl-horizontal list").appendTo(container);
 	var title = $("<input>").attr("id", "project-title").val(project.title);
 	var description = $("<textarea>").attr("id", "project-description").text(project.description);
 	var version = $("<select>").attr("id", "project-mint-version");

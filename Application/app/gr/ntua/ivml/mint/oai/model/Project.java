@@ -7,6 +7,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import gr.ntua.ivml.mint.oai.util.Config;
+import gr.ntua.ivml.mint.oai.util.JSONReader;
 import gr.ntua.ivml.mint.oai.util.MongoDB;
 
 import com.mongodb.BasicDBObject;
@@ -282,5 +287,27 @@ public class Project {
 	 */
 	public String getOAIUrl(String namespace) {
 		return "/" + this.projectId + "/oai?verb=ListIdentifiers&metadataPrefix=" + namespace;
+	}
+
+	/**
+	 * 
+	 * @return
+	 * @throws JSONException 
+	 */
+	public JSONObject fetchOrganizationsMetadata() throws JSONException {
+		JSONObject organizations = new JSONObject();		
+		BasicDBObject metadata = this.getMetadata();
+		
+		if(!metadata.containsField("mintVersion") || metadata.getString("mintVersion").equals("mint1")) {
+			try {
+				organizations = JSONReader.readJsonFromUrl(Config.get("mint.api.baseURL") + "/servlets/dbaseorgs?database=" + this.projectId);
+			} catch (Exception e) {
+				e.printStackTrace();
+				organizations = new JSONObject().put("error", e.getMessage());
+			}
+		} else {
+		}
+		
+		return organizations;
 	}
 }
