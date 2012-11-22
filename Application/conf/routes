@@ -28,3 +28,13 @@ GET		/manager/:proj/timeline/:org						controllers.Projects.getOrgTimeLine(proj:
 # OAI
 
 GET		/:collection/oai									controllers.OAI.show(collection: String)
+
+# Administration
+
+GET		/admin												controllers.Administration.landingPage()
+GET		/admin/												controllers.Administration.landingPage()
+GET		/admin/projects										controllers.Administration.projects()
+
+# Administration updates
+
+POST		/admin/projects/:proj/update					controllers.Administration.updateDetails(proj: String)

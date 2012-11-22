@@ -11,6 +11,7 @@ import gr.ntua.ivml.mint.oai.util.MongoDB;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.BasicDBList;
+import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 
 public class Project {
@@ -25,14 +26,26 @@ public class Project {
 	 * Get json object with metadata for all projects in OAI.
 	 * @return
 	 */
-	public static BasicDBObject getProjects() {
-		BasicDBObject results = new BasicDBObject();
-		
+	public static BasicDBList getProjectsMetadata() {
 		BasicDBObject q = new BasicDBObject();
 		q.put("id", "projects");
 		BasicDBObject metadata = (BasicDBObject) MongoDB.getDB().getCollection("metadata").findOne(q);
+		
 		BasicDBList projects = (BasicDBList) metadata.get("projects");
 		
+		return projects;
+	}
+	
+	
+	/**
+	 * Get json object with metadata for all projects in OAI.
+	 * @return
+	 */
+	public static BasicDBObject getProjects() {
+		BasicDBObject results = new BasicDBObject();
+		
+		BasicDBList projects = Project.getProjectsMetadata();
+
 		for(Object o: projects) {
 			BasicDBObject project = (BasicDBObject) o;
 			results.put(project.getString("projectName"), project);
@@ -61,6 +74,33 @@ public class Project {
 		
 		// return empty object to avoid null result;
 		return (this.metadata != null)?this.metadata:new BasicDBObject();
+	}
+	
+
+	/**
+	 * Saves metadata information
+	 * @param result
+	 */
+	public static void saveProjectMetadata(BasicDBObject project) {
+		DBCollection collection = MongoDB.getDB().getCollection("metadata");
+		BasicDBList metadata = Project.getProjectsMetadata();
+		
+		boolean isNew = true;
+		for(Object o: metadata) {
+			BasicDBObject p = (BasicDBObject) o;
+			if(p.getString("projectName").equals(project.getString("projectName"))) {
+				p.putAll(project.toMap());
+				isNew = false;
+				break;
+			}
+		}
+		
+		if(isNew) {
+			metadata.add(project);
+		}
+		
+		BasicDBObject update = new BasicDBObject("id", "projects");
+		collection.update(update, new BasicDBObject("$set", new BasicDBObject("projects", metadata)));
 	}
 	
 	/**

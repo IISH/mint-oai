@@ -1,7 +1,14 @@
 // OAI Project list
 
-function MintOAIProjects(id) {
+function MintOAIProjects(id, options) {
 	var self = this;
+	var defaults = {
+		statistics: null,
+		click: null,
+		showStatistics: true
+	};
+	
+	this.options = $.extend({}, defaults, options);
 	
 	if(id instanceof jQuery) {
 		this.id = "overall-statistics";
@@ -16,9 +23,12 @@ function MintOAIProjects(id) {
 	// header
 	
 	var legend = $("<legend>").text("Projects").appendTo(this.container);
-	$("<i>").addClass("icon-signal").css({ float: "right", cursor: "pointer" }).appendTo(legend).click(function () {	
-		new MintOAIOverallStatistics("overall");
+	var stats = $("<i>").addClass("icon-signal").css({ float: "right", cursor: "pointer" }).appendTo(legend).click(function () {	
+		if(self.options.statistics != null) {
+			self.options.statistics();
+		} else new MintOAIOverallStatistics("overall");
 	}).attr("title", "Overall statistics").tooltip();
+	if(!this.options.showStatistics) stats.hide();
 	
 	// loading page
 	this.loading = $("<div>").attr("id", this.id + "-loading").appendTo(this.container);
@@ -68,12 +78,21 @@ MintOAIProjects.prototype.projectDiv = function(project) {
 	var title = project.projectName;
 	if(project.title != undefined) title = project.title;
 	
-	$("<i>").addClass("icon-signal").css({ float: "right", cursor: "pointer" }).appendTo(div).click(function () {	
-		self.projectStatistics = new MintOAIProjectStatistics(project, $("#overall"));
+	var stats = $("<i>").addClass("icon-signal").css({ float: "right", cursor: "pointer" }).appendTo(div).click(function () {
+		if(self.options.statistics != null) {
+			self.options.statistics(project);
+		} else self.projectStatistics = new MintOAIProjectStatistics(project, $("#overall"));
 	}).attr("title", "Statistics for " + title).tooltip();
+	if(!this.options.showStatistics) stats.hide();
 
 	$("<div>").append($("<a>").text(title).attr("target", "_blank").attr("href", "/manager/projects/" + project.projectName)).appendTo(div);
 	$("<small>").css("color", "silver").text(project.projectName).appendTo(div);
+	
+	div.click(function () {
+		if(self.options.click != null) {
+			self.options.click(project);
+		}
+	})
 	
 	return div;
 }
