@@ -254,14 +254,37 @@ MintOAIProjectStatistics.prototype.refresh = function() {
 }
 
 MintOAIProjectStatistics.prototype.drawVisualization = function(container, namespace) {
+	var self = this;
+	
 	container.empty();
 	container.append($("<div>").addClass("spinner"));
 
-	$.get("/manager/projects/" + this.project.projectName + "/recordsPerOrganization/" + namespace, function(data) {
-		toChart(container, data, ["Organization", "Records"], {
-			title: 	"Records per organization",
-			is3D: 	true
-		});		
+	$.get("/manager/projects/" + self.project.projectName + "/organizations", function(organizations) {
+		self.metadata = organizations;
+		console.log(self.metadata);
+
+		$.get("/manager/projects/" + self.project.projectName + "/recordsPerOrganization/" + namespace, function(data) {
+			if(self.metadata != undefined) {
+				var list = {};
+				
+				for(var key in data) {
+					var value = data[key];
+					if(self.metadata[key] != undefined) {
+						list[self.metadata[key].metadata.name] = value;
+					} else {
+						list[key] = value;
+					} 
+				}
+				
+				data = list;
+				console.log(list);
+			}
+		
+			toChart(container, data, ["Organization", "Records"], {
+				title: 	"Records per organization",
+				is3D: 	true
+			});		
+		});
 	});
 }
 
@@ -327,6 +350,7 @@ MintOAIOrganizations.prototype.loadOrganizations = function() {
 	// Create and populate the data table.
 	$.get("/manager/projects/" + self.project.projectName + "/organizations", function(organizations) {
 		self.organizations.empty();
+		self.metadata = organizations;
 		
 		for(var i in organizations) {
 			var organization = organizations[i];
@@ -344,8 +368,7 @@ MintOAIOrganizations.prototype.organizationDiv = function(organization) {
 	var div = $("<div>").addClass("organization");
 	div.data("organization", organization);
 	
-	var title = organization.name;
-	if(organization.name != undefined) title = organization.id;
+	var title = (organization.metadata.name != undefined)?organization.metadata.name:organization.id;
 	
 	$("<div>").appendTo(div)
 		.append($("<a>").text(title).attr("target", "_blank"))

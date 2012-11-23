@@ -135,7 +135,7 @@ footer a:hover {
 }
 
 .organization-list {
-	
+	margin-bottom: 10px;
 }
 
 .organization {
@@ -143,3 +143,9 @@ footer a:hover {
 	padding-bottom: 10px;
 	border-bottom:1px solid silver;
 }
+
+.detail {
+	color: silver;
+}
+
+

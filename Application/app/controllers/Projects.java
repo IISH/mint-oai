@@ -1,5 +1,6 @@
 package controllers;
 
+import gr.ntua.ivml.mint.oai.model.Organization;
 import gr.ntua.ivml.mint.oai.model.Project;
 import gr.ntua.ivml.mint.oai.model.Report;
 import gr.ntua.ivml.mint.oai.util.MongoDB;
@@ -57,7 +58,7 @@ public class Projects extends Controller {
 				BasicDBObject project = null;
 				for(String key: projects.keySet()) {
 					BasicDBObject p = (BasicDBObject) projects.get(key);
-					if(p.getString("projectName").equals(setName)) {
+					if(p.containsField("projectName") && p.getString("projectName").equals(setName)) {
 						project = p;
 					}
 				}
@@ -78,17 +79,18 @@ public class Projects extends Controller {
 		Project project = new Project(proj);
 		
 		List<Integer> organizationIds =  project.getOrganizationIds();
-		BasicDBList result = new BasicDBList();
+		BasicDBObject result = new BasicDBObject();
 		
 		for(Integer organizationId: organizationIds){
 			BasicDBObject organization = new BasicDBObject();
 			
+			Organization org = project.getOrganization(organizationId);
 			organization.put("id", organizationId.toString());
-			organization.put("name", organizationId.toString());
+			organization.put("metadata", org.getMetadata());
 			organization.put("latestPublicationDate", StringUtils.formatDate(project.getLatestPublicationDate(organizationId)));
 			organization.put("records", project.getRecordsCount(organizationId));
 			
-			result.add(organization);
+			result.put(organizationId.toString(), organization);
 		}
 		
 

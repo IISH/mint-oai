@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -93,7 +94,7 @@ public class Project {
 		boolean isNew = true;
 		for(Object o: metadata) {
 			BasicDBObject p = (BasicDBObject) o;
-			if(p.getString("projectName").equals(project.getString("projectName"))) {
+			if(p.containsField("projectName") && p.getString("projectName").equals(project.getString("projectName"))) {
 				p.putAll(project.toMap());
 				isNew = false;
 				break;
@@ -290,24 +291,56 @@ public class Project {
 	}
 
 	/**
-	 * 
+	 * Retrieves organization metadata and stores in project metadata.
+	 * Uses mint.api.baseURL for mint1 projects, project url for mint2 projects.
 	 * @return
 	 * @throws JSONException 
 	 */
-	public JSONObject fetchOrganizationsMetadata() throws JSONException {
+	public BasicDBObject fetchOrganizationsMetadata() throws JSONException {
+		BasicDBObject result = new BasicDBObject();
 		JSONObject organizations = new JSONObject();		
 		BasicDBObject metadata = this.getMetadata();
 		
 		if(!metadata.containsField("mintVersion") || metadata.getString("mintVersion").equals("mint1")) {
 			try {
-				organizations = JSONReader.readJsonFromUrl(Config.get("mint.api.baseURL") + "/servlets/dbaseorgs?database=" + this.projectId);
+				String mintid = this.projectId;
+				if(metadata.containsField("mintId")) mintid = metadata.getString("mintId");
+				organizations = JSONReader.readJsonFromUrl(Config.get("mint.api.baseURL") + "/servlets/dbaseorgs?database=" + mintid);
+				if(organizations.has("organizations")) {
+					JSONArray array = organizations.getJSONArray("organizations");
+					for(int i = 0; i < array.length(); i++) {
+						JSONObject organization = array.getJSONObject(i);
+						String id = organization.getString("id");
+						BasicDBObject org = new BasicDBObject();
+						org.put("name", organization.getString("organization"));
+						org.put("address", organization.getString("address"));
+						org.put("country", organization.getString("country"));
+						org.put("description", organization.getString("description"));
+						result.put(id, org);
+					}
+				}
 			} catch (Exception e) {
 				e.printStackTrace();
 				organizations = new JSONObject().put("error", e.getMessage());
 			}
 		} else {
 		}
-		
-		return organizations;
+
+		metadata.put("projectName", this.projectId);
+		metadata.put("organizations", result);
+		Project.saveProjectMetadata(metadata);
+				
+		return result;
+	}
+	
+	/**
+	 * Get organizations metadata for this project.
+	 * Metadata is a map of orgnization json data using organization id as the key
+	 * @return
+	 */
+	public BasicDBObject getOrganizationsMetadata() {
+		BasicDBObject metadata = this.getMetadata();
+		if(metadata.containsField("organizations")) return (BasicDBObject) metadata.get("organizations");
+		else return new BasicDBObject();
 	}
 }

@@ -81,4 +81,18 @@ public class Organization {
 		return size;
 	}
 
+	/**
+	 * Get metadata for this organization
+	 * @return
+	 */
+	public BasicDBObject getMetadata() {
+		BasicDBObject metadata = this.project.getOrganizationsMetadata();
+		
+		if(metadata.containsField(this.organizationId.toString())) {
+			return (BasicDBObject) metadata.get(this.organizationId.toString());
+		}
+		
+		return new BasicDBObject();
+	}
+
 }

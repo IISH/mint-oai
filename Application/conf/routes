@@ -38,4 +38,5 @@ GET		/admin/projects/:proj/organizations					controllers.Administration.organiza
 
 # Administration updates
 
-POST		/admin/projects/:proj/update					controllers.Administration.updateDetails(proj: String)
+POST	/admin/projects/:proj/update						controllers.Administration.updateDetails(proj: String)
+POST	/admin/projects/:proj/organizations					controllers.Administration.organizations(proj: String)

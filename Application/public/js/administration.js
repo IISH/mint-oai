@@ -19,7 +19,7 @@ function MintOAIAdministration(projects, main) {
 	
 	var tabs = $("<div>").addClass("tab-content").appendTo(this.tabsContainer);
 	this.detailsContainer = $("<div>").addClass("tab-pane active").attr("id", "administration-details").appendTo(tabs);
-	this.organizationsContainer = $("<div>").addClass("tab-pane").attr("id", "administration-organizations").appendTo(tabs).text("ORgs");
+	this.organizationsContainer = $("<div>").addClass("tab-pane").attr("id", "administration-organizations").appendTo(tabs);
 	this.tabsContainer.find("a:first").tab('show');
 	this.tabsContainer.hide();
 	
@@ -29,6 +29,7 @@ function MintOAIAdministration(projects, main) {
 			self.legend.text("Project Id: " + project.projectName);
 			self.tabsContainer.show();
 			self.showProjectEditForm(project, self.detailsContainer);
+			self.showOrganizations(project, self.organizationsContainer);
 		}
 	});
 }
@@ -42,6 +43,7 @@ MintOAIAdministration.prototype.showProjectEditForm = function(project, containe
 		description: "",
 		mintVersion: "mint1",
 		mintURL: "",
+		mintId: "",
 	}, project);
 	
 	var dl = $("<dl>").addClass("dl-horizontal list").appendTo(container);
@@ -52,6 +54,7 @@ MintOAIAdministration.prototype.showProjectEditForm = function(project, containe
 	$("<option>").appendTo(version).attr("value", "mint2").text("Mint 2");
 	version.val(project.mintVersion);
 	var url = $("<input>").attr("id", "project-mint-url").val(project.mintURL);
+	var id = $("<input>").attr("id", "project-mint-id").val(project.mintId);
 
 	dl.append($("<dt>").text("title"));
 	dl.append($("<dd>").append(title));
@@ -61,6 +64,8 @@ MintOAIAdministration.prototype.showProjectEditForm = function(project, containe
 	dl.append($("<dd>").append(version));
 	dl.append($("<dt>").text("mint URL"));
 	dl.append($("<dd>").append(url));
+	dl.append($("<dt>").text("mint identifier"));
+	dl.append($("<dd>").append(id));
 	
 	var buttons = $("<div>").appendTo(container);
 	$("<button>").addClass("btn").text("Submit").appendTo(buttons).click(function() {
@@ -72,6 +77,7 @@ MintOAIAdministration.prototype.showProjectEditForm = function(project, containe
 			description: description.val(),
 			mintVersion: version.val(),
 			mintURL: url.val(),
+			mintId: id.val(),
 		},
 		function(project) {
 			self.showProjectEditForm(project, container);
@@ -83,3 +89,44 @@ MintOAIAdministration.prototype.showProjectEditForm = function(project, containe
 	});
 }
 	  		
+MintOAIAdministration.prototype.showOrganizations = function(project, container) {
+	var self = this;
+	container.empty();
+	
+	var header = $("<legend>").appendTo(container);
+	$("<button>").addClass("btn").text("Refresh").appendTo(header).css("float", "right").click(function () {
+		$(this).text("Loading...");
+		$.post("/admin/projects/" + project.projectName + "/organizations",
+		{
+			refresh: true
+		},
+		function(organizations) {
+			self.showOrganizations(project, container);
+		}); 
+	});
+	var countLabel  = $("<div>").appendTo(header);
+
+	var list = $("<div>").addClass("organization-list").appendTo(container);
+	
+	$.get("/admin/projects/" + project.projectName + "/organizations", function(response) {
+		var count = 0;
+		for(var i in response) {
+			var organization = response[i];
+			console.log(organization);
+			var item = $("<div>").addClass("organization");
+			$("<span>").appendTo(item).addClass("detail")
+			.css({
+				"min-width": "100px",
+				"display": "inline-block",
+			}).text(i);
+			$("<span>").appendTo(item).text(organization.name);
+			list.append(item);
+			count++;
+		}
+		
+		countLabel.text(count + " organizations");
+		if(list.is(":empty")) {
+			list.append($("<span>").text("No organizations metadata"));
+		}
+	});
+}
