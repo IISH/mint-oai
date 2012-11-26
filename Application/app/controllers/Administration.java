@@ -1,5 +1,6 @@
 package controllers;
 
+import java.io.IOException;
 import java.util.Map;
 
 import org.json.JSONException;
@@ -35,7 +36,12 @@ public class Administration extends Controller {
 		
 		if(request().method() == "POST") {
 			Map<String, String[]> parameters = request().body().asFormUrlEncoded();
-			if(parameters.containsKey("refresh")) project.fetchOrganizationsMetadata();
+			if(parameters.containsKey("refresh"))
+				try {
+					project.fetchOrganizationsMetadata();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 		}
 		
 		BasicDBObject organizations = project.getOrganizationsMetadata();

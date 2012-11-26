@@ -1,12 +1,15 @@
 package gr.ntua.ivml.mint.oai.model;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
 
 import gr.ntua.ivml.mint.oai.util.MongoDB;
+import gr.ntua.ivml.mint.oai.util.StringUtils;
 
 public class Report {
 
@@ -47,6 +50,8 @@ public class Report {
 	 * @return
 	 */
 	public List<BasicDBObject> getReports(String orgId){
+		Calendar calendar = Calendar.getInstance();
+
 		ArrayList<BasicDBObject> res = new ArrayList<BasicDBObject>();
 		int id = Integer.parseInt(orgId);
 		BasicDBObject q = new BasicDBObject();
@@ -63,7 +68,12 @@ public class Report {
 		
 		DBCursor cur = MongoDB.getDB().getCollection("reports").find(q, f);
 		while(cur.hasNext()){
-			res.add( (BasicDBObject) cur.next());
+			BasicDBObject report = (BasicDBObject) cur.next();
+
+			calendar.setTimeInMillis(report.getLong("datestamp"));
+			report.put("publicationDate", StringUtils.formatDate(calendar.getTime()));
+			
+			res.add(report);
 		}
 		
 		return res;

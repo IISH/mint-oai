@@ -78,21 +78,24 @@ MintOAIProjects.prototype.projectDiv = function(project) {
 	var title = project.projectName;
 	if(project.title != undefined) title = project.title;
 	
-	var stats = $("<i>").addClass("icon-signal").css({ float: "right", cursor: "pointer" }).appendTo(div).click(function () {
-		if(self.options.statistics != null) {
-			self.options.statistics(project);
-		} else self.projectStatistics = new MintOAIProjectStatistics(project, $("#overall"));
-	}).attr("title", "Statistics for " + title).tooltip();
-	if(!this.options.showStatistics) stats.hide();
+	if(self.options.statistics != null) {
+		var stats = $("<i>").addClass("icon-signal").css({ float: "right", cursor: "pointer" }).appendTo(div).click(function () {
+			if(self.options.statistics != null) {
+				self.options.statistics(project);
+			}
+		}).attr("title", "Statistics for " + title).tooltip();
+	}
 
 	$("<div>").append($("<a>").text(title).attr("target", "_blank").attr("href", "/manager/projects/" + project.projectName)).appendTo(div);
 	$("<small>").css("color", "silver").text(project.projectName).appendTo(div);
 	
-	div.click(function () {
-		if(self.options.click != null) {
-			self.options.click(project);
-		}
-	})
+	if(self.options.click != null) {
+		div.click(function () {
+			if(self.options.click != null) {
+				self.options.click(project);
+			}
+		});
+	}
 	
 	return div;
 }
@@ -371,7 +374,7 @@ MintOAIOrganizations.prototype.organizationDiv = function(organization) {
 	var title = (organization.metadata.name != undefined)?organization.metadata.name:organization.id;
 	
 	$("<div>").appendTo(div)
-		.append($("<a>").text(title).attr("target", "_blank"))
+		.append($("<a>").text(title).attr("target", "_blank").attr("href", "/manager/projects/" + this.project.projectName + "/organizations/" + organization.id))
 		.append($("<div>").append($("<small>").addClass("muted").css("float", "right").text("" + organization.records + " records"))
 				.append($("<small>").addClass("muted").text(organization.latestPublicationDate)));
 	
@@ -404,6 +407,86 @@ MintOAIOrganizations.prototype.sortByDate = function() {
 		return (dateA < dateB)?self.sortDirection:-1 * self.sortDirection;
 	});
 	this.sortDirection *= -1;
+}
+
+//Organization statistics
+
+function MintOAIOrganizationStatistics(projectId, organizationId, id) {
+	var self = this;
+
+	if(id instanceof jQuery) {
+		this.id = "organization-statistics";
+		this.container = id;
+	} else {
+		this.id = id;
+		this.container = $("#" + id);		
+	}
+	
+	this.projectId = projectId;
+	this.organizationId = organizationId;
+	
+	// header
+	this.container.empty();
+	$("<legend>").text("Publication History").appendTo(this.container);
+
+	
+	// loading page
+	this.loading = $("<div>").attr("id", id + "-loading").appendTo(this.container);
+//	$("<div>").addClass("progress progress-striped active").appendTo(this.loading).append($("<div>").addClass("bar").css("width", "100%"));
+	$("<div>").addClass("spinner").appendTo(this.loading);
+	
+	// contents
+	this.contents = $("<div>").appendTo(this.container);
+	
+	this.refresh();
+}
+
+MintOAIOrganizationStatistics.prototype.refresh = function() {
+	var self = this;
+	
+	this.loading.show();
+	this.contents.hide();
+	
+	var baseUrl = "/manager/projects/" + this.projectId + "/organizations/" + this.organizationId;
+	
+	$.get(baseUrl + "/metadata", function(metadata) {
+		self.organization = metadata;
+		
+		$.get(baseUrl + "/reports", function(reports) {
+			self.loading.hide();
+			self.contents.show();
+
+			if(reports.reports != undefined) {
+				var rows = [];
+				
+				for(var i in reports.reports) {
+					var report = reports.reports[i];
+					var row = [];
+					var date = new Date();
+					date.setTime(report.datestamp);
+					console.log(date);
+					row.push(date);
+					row.push(report.insertedRecords);
+					row.push(report.conflictedRecords);
+					rows.push(row);
+				}
+				
+		        var data = new google.visualization.DataTable();
+		        
+		        data.addColumn('datetime', 'Date');
+		        data.addColumn('number', 'Published records');
+		        data.addColumn('number', 'Conflicts');
+		        
+		        var dateFormatter = new google.visualization.DateFormat({ pattern: "DD/MM/yyy hh:mm:ss" });
+		        dateFormatter.format(data, 0);
+		        
+		        data.addRows(rows);
+	
+		        var table = new google.visualization.Table(self.contents[0]);
+		        table.draw(data, { showRowNumber: true, sortColumn: 0, sortAscending: false });
+			}			
+		});
+	});
 }
 
 // utility functions

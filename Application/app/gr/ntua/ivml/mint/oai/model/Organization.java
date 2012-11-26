@@ -9,8 +9,17 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBCursor;
 
 public class Organization {
+	public static final String METADATA_NAME = "name";
+	public static final String METADATA_DESCRIPTION = "description";
+	public static final String METADATA_ADDRESS = "address";
+	public static final String METADATA_COUNTRY = "country";
+	public static final String METADATA_CONTACT = "contact";
+	public static final String METADATA_CONTACT_EMAIL = "contactEmail";
+	public static final String METADATA_CONTACT_PHONE = "contactPhone";
+	
 	Project project = null;
 	Integer organizationId = null;
+	BasicDBObject metadata = null;
 	
 	public Organization(Project project, Integer organizationId) {
 		this.project = project;
@@ -29,7 +38,7 @@ public class Organization {
 	 * Get the organization's id.
 	 * @return
 	 */
-	public Integer getOrganizationId() {
+	public Integer getId() {
 		return this.organizationId;
 	}
 
@@ -86,13 +95,36 @@ public class Organization {
 	 * @return
 	 */
 	public BasicDBObject getMetadata() {
-		BasicDBObject metadata = this.project.getOrganizationsMetadata();
-		
-		if(metadata.containsField(this.organizationId.toString())) {
-			return (BasicDBObject) metadata.get(this.organizationId.toString());
+		if(this.metadata == null) {
+			BasicDBObject all = this.project.getOrganizationsMetadata();
+			System.out.println(all);
+			
+			if(all.containsField(this.organizationId.toString())) {
+				this.metadata = (BasicDBObject) all.get(this.organizationId.toString());
+			} else this.metadata = new BasicDBObject();
 		}
 		
-		return new BasicDBObject();
+		System.out.println(this.metadata);
+		
+		return this.metadata;
 	}
 
+	/**
+	 * Get organization name from metadata
+	 * @return
+	 */
+	public String getName() {
+		String result = this.getMetadata().getString("name");
+//		if(result == null) result = "";		
+		return result;
+	}
+	
+	/**
+	 * Get field from organization's metadata
+	 * @return
+	 */
+	public String getMetadata(String field) {
+		String result = this.getMetadata().getString(field);
+		return result;
+	}
 }

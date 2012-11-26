@@ -1,5 +1,6 @@
 package gr.ntua.ivml.mint.oai.model;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -21,6 +22,16 @@ import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 
 public class Project {
+	public static final String METADATA_ID = "projectName";
+	public static final String METADATA_TITLE = "title";
+	public static final String METADATA_DESCRIPTION = "description";
+	public static final String METADATA_ORGANIZATIONS = "organizations";
+	public static final String METADATA_MINT_ID = "mintId";
+	public static final String METADATA_MINT_URL = "mintURL";
+	public static final String METADATA_MINT_VERSION = "mintVersion";
+	public static final String METADATA_MINT_VERSION_1 = "mint1";
+	public static final String METADATA_MINT_VERSION_2 = "mint2";
+
 	private String projectId = null;
 	private BasicDBObject metadata = null;
 	
@@ -54,7 +65,7 @@ public class Project {
 
 		for(Object o: projects) {
 			BasicDBObject project = (BasicDBObject) o;
-			results.put(project.getString("projectName"), project);
+			results.put(project.getString(Project.METADATA_ID), project);
 		}
 
 		return results;
@@ -94,7 +105,7 @@ public class Project {
 		boolean isNew = true;
 		for(Object o: metadata) {
 			BasicDBObject p = (BasicDBObject) o;
-			if(p.containsField("projectName") && p.getString("projectName").equals(project.getString("projectName"))) {
+			if(p.containsField(Project.METADATA_ID) && p.getString(Project.METADATA_ID).equals(project.getString(Project.METADATA_ID))) {
 				p.putAll(project.toMap());
 				isNew = false;
 				break;
@@ -114,7 +125,7 @@ public class Project {
 	 * @return
 	 */
 	public String getTitle() {
-		String title = this.getMetadata().getString("title");
+		String title = this.getMetadata().getString(Project.METADATA_TITLE);
 		return (title != null)?title:this.projectId;
 	}
 	
@@ -123,8 +134,17 @@ public class Project {
 	 * @return null if description is not set.
 	 */
 	public String getDescription() {
-		String decription = this.getMetadata().getString("description");
+		String decription = this.getMetadata().getString(Organization.METADATA_DESCRIPTION);
 		return decription;
+	}
+	
+	/**
+	 * Get the URL of the mint project.
+	 * @return null if description is not set.
+	 */
+	public String getMintURL() {
+		String url = this.getMetadata().getString(Project.METADATA_MINT_URL);
+		return url;
 	}
 	
 	/**
@@ -132,10 +152,10 @@ public class Project {
 	 * @return
 	 */
 	public List<String> getNamespaces() {
-		ArrayList<Object> ns = (ArrayList<Object>) MongoDB.getDB().getCollection(this.projectId).distinct("namespace.prefix");
+		List<?> ns = MongoDB.getDB().getCollection(this.projectId).distinct("namespace.prefix");
 		ArrayList<String> namespaces = new ArrayList<String>();
-		for(Object n:ns){
-			String prefix = (String) n;
+		for(Object n: ns){
+			String prefix = n.toString();
 			namespaces.add(prefix);
 		}
 		
@@ -147,7 +167,7 @@ public class Project {
 	 * @return
 	 */
 	public List<Integer> getOrganizationIds() {
-		List<Object> objects =  (List<Object>) MongoDB.getDB().getCollection(this.projectId).distinct("orgId");
+		List<?> objects = MongoDB.getDB().getCollection(this.projectId).distinct("orgId");
 		ArrayList<Integer> ids = new ArrayList<Integer>();
 		for(Object o: objects) {
 			ids.add(new Integer(o.toString()));
@@ -177,7 +197,7 @@ public class Project {
 	 */
 	public int getReportsCount() {
 		BasicDBObject q = new BasicDBObject();
-		q.put("projectName", this.projectId);
+		q.put(Project.METADATA_ID, this.projectId);
 		int publications = MongoDB.getDB().getCollection("reports").find(q).count(); //total number of reports
 
 		return publications;
@@ -295,16 +315,17 @@ public class Project {
 	 * Uses mint.api.baseURL for mint1 projects, project url for mint2 projects.
 	 * @return
 	 * @throws JSONException 
+	 * @throws IOException 
 	 */
-	public BasicDBObject fetchOrganizationsMetadata() throws JSONException {
+	public BasicDBObject fetchOrganizationsMetadata() throws JSONException, IOException {
 		BasicDBObject result = new BasicDBObject();
 		JSONObject organizations = new JSONObject();		
 		BasicDBObject metadata = this.getMetadata();
 		
-		if(!metadata.containsField("mintVersion") || metadata.getString("mintVersion").equals("mint1")) {
+		if(!metadata.containsField(Project.METADATA_MINT_VERSION) || metadata.getString(Project.METADATA_MINT_VERSION).equals(Project.METADATA_MINT_VERSION_1)) {
 			try {
 				String mintid = this.projectId;
-				if(metadata.containsField("mintId")) mintid = metadata.getString("mintId");
+				if(metadata.containsField(Project.METADATA_MINT_ID)) mintid = metadata.getString(Project.METADATA_MINT_ID);
 				organizations = JSONReader.readJsonFromUrl(Config.get("mint.api.baseURL") + "/servlets/dbaseorgs?database=" + mintid);
 				if(organizations.has("organizations")) {
 					JSONArray array = organizations.getJSONArray("organizations");
@@ -312,10 +333,18 @@ public class Project {
 						JSONObject organization = array.getJSONObject(i);
 						String id = organization.getString("id");
 						BasicDBObject org = new BasicDBObject();
-						org.put("name", organization.getString("organization"));
-						org.put("address", organization.getString("address"));
-						org.put("country", organization.getString("country"));
-						org.put("description", organization.getString("description"));
+						org.put(Organization.METADATA_NAME, organization.getString("organization"));
+						org.put(Organization.METADATA_ADDRESS, organization.getString("address"));
+						org.put(Organization.METADATA_COUNTRY, organization.getString("country"));
+						org.put(Organization.METADATA_DESCRIPTION, organization.getString("description"));
+						
+						if(organization.has("Administrator List") && organization.getJSONArray("Administrator List").length() > 0) {
+							JSONObject administrator = (JSONObject) organization.getJSONArray("Administrator List").get(0);
+							org.put(Organization.METADATA_CONTACT, administrator.getString("name"));
+							org.put(Organization.METADATA_CONTACT_EMAIL, administrator.getString("email"));
+							org.put(Organization.METADATA_CONTACT_PHONE, administrator.getString("telephone"));
+						}
+						
 						result.put(id, org);
 					}
 				}
@@ -323,11 +352,55 @@ public class Project {
 				e.printStackTrace();
 				organizations = new JSONObject().put("error", e.getMessage());
 			}
-		} else {
+		} else if(metadata.getString(Project.METADATA_MINT_VERSION).equals(Project.METADATA_MINT_VERSION_2)) {
+			String minturl = metadata.getString(Project.METADATA_MINT_URL);
+			
+			organizations = JSONReader.readJsonFromUrl(minturl + "/UrlApi?isApi=true&type=Organization&action=list");
+			JSONObject users = JSONReader.readJsonFromUrl(minturl + "/UrlApi?isApi=true&type=User&action=list");
+			
+			if(organizations.has("result")) {
+				JSONArray array = organizations.getJSONArray("result");
+				JSONArray usersArray = users.getJSONArray("result");
+				
+				for(int i = 0; i < array.length(); i++) {
+					JSONObject organization = array.getJSONObject(i);
+					String id = organization.getString("dbID");
+					BasicDBObject org = new BasicDBObject();
+					String name = organization.has("originalName")?organization.getString("originalName"):organization.getString("englishName");
+					org.put(Organization.METADATA_NAME, name);
+					org.put(Organization.METADATA_ADDRESS, organization.getString("address"));
+					org.put(Organization.METADATA_COUNTRY, organization.getString("country"));
+					org.put(Organization.METADATA_DESCRIPTION, organization.getString("description"));
+					
+					if(usersArray != null && organization.has("primaryContact") && organization.getJSONObject("primaryContact").has("dbID")) {
+						String contactId = organization.getJSONObject("primaryContact").getString("dbID");
+						
+						for(int u = 0; u < usersArray.length(); u++) {
+							JSONObject user = (JSONObject) usersArray.get(u);
+							if(user.getString("dbID").equals(contactId)) {
+								String userName = null;
+								
+								if(user.has("firstName")) userName = user.getString("firstName");
+								if(user.has("lastName")) {
+									if(userName.length() > 0) userName += " ";
+									userName += user.getString("lastName");
+								}
+
+								org.put(Organization.METADATA_CONTACT, userName);
+								if(user.has("email")) org.put(Organization.METADATA_CONTACT_EMAIL, user.getString("email"));
+								if(user.has("workTelephone")) org.put(Organization.METADATA_CONTACT_PHONE, user.getString("workTelephone"));
+								break;
+							}
+						}
+					}
+					
+					result.put(id, org);
+				}
+			}
 		}
 
-		metadata.put("projectName", this.projectId);
-		metadata.put("organizations", result);
+		metadata.put(Project.METADATA_MINT_ID, this.projectId);
+		metadata.put(Project.METADATA_ORGANIZATIONS, result);
 		Project.saveProjectMetadata(metadata);
 				
 		return result;

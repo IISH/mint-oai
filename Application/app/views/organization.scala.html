@@ -1,4 +1,5 @@
-@(project: gr.ntua.ivml.mint.oai.model.Project)
+@(project: gr.ntua.ivml.mint.oai.model.Project, organization: gr.ntua.ivml.mint.oai.model.Organization)
+@import gr.ntua.ivml.mint.oai.model.Organization
 
 <!DOCTYPE html>
 
@@ -15,17 +16,14 @@
 		<script src="@routes.Assets.at("js/oaimanager.js")" type="text/javascript"></script>
         <script type="text/javascript" src="http://www.google.com/jsapi"></script>
     	<script type="text/javascript">
-	  		google.load('visualization', '1', {packages: ['corechart']});
       		google.load('visualization', '1', {packages:['table']});
 	
 	  		$(document).ready(function () {
 	  			google.setOnLoadCallback(function() {
-	  				overall = new MintOAIProjectStatistics({ projectName: "@project.getId()" }, "overall");
-	  				organizations = new MintOAIOrganizations({ projectName: "@project.getId()" }, "organizations");
+	  				overall = new MintOAIOrganizationStatistics("@project.getId()", "@organization.getId()", "organization");
 	  				
 	  				$("#refresh").click(function() {
-	  					organizations.refresh();
-		  				overall = new MintOAIProjectStatistics({ projectName: "@project.getId()" }, "overall");
+		  				overall.refresh();
 	  				})
 	  			});
 	  		});
@@ -36,7 +34,7 @@
 		<div class="wrapper">
 			<div class="navbar">
 				<div class="navbar-inner">
-					<a class="brand" href="#">Mint OAI Repository: @project.getTitle()</a>
+					<a class="brand" href="#">Mint OAI Repository: @project.getTitle(): @organization.getName()</a>
 					<button id="refresh" style="float: right" class="btn">Refresh</button>
 				</div>
 			</div>
@@ -44,23 +42,29 @@
 				<div class="row">
 					<div id="sidebar" class="well sidebar span3">
 						<div class="row">
-							<div id="project-info" class="span3">
+							<div id="organization-info" class="span3">
 								<legend>Information<a class="oai-action" target="_blank" style="float: right" title="@project.getTitle() OAI url for ese namespace" href='@project.getOAIUrl("ese")'></a></legend>
 								<dl class="dl-horizontal list">
-  									<dt>Title</dt>
-									<dd>@project.getTitle()</dd>
+  									<dt>Name</dt>
+									<dd>@organization.getName()</dd>
   									<dt>Description</dt>
-									<dd>@project.getDescription()</dd>
-									<dt>Mint URL</dd>
-									<dd><a target="_blank" href="@project.getMintURL()">@project.getId()</a></dd>
+									<dd>@{val data = organization.getMetadata(Organization.METADATA_DESCRIPTION); if(data) data else "- not set -" }</dd>
+  									<dt>Country</dt>
+									<dd>@{val data = organization.getMetadata(Organization.METADATA_COUNTRY); if(data) data else "- not set -" }</dd>
+  									<dt>Address</dt>
+									<dd>@{val data = organization.getMetadata(Organization.METADATA_ADDRESS); if(data) data else "- not set -" }</dd>
+  									<hr/>
+  									<dt>Contact</dt>
+									<dd>@{val data = organization.getMetadata(Organization.METADATA_CONTACT); if(data) data else "- not set -" }</dd>
+  									<dt>Email</dt>
+									<dd>@{val data = organization.getMetadata(Organization.METADATA_CONTACT_EMAIL); if(data) data else "- not set -" }</dd>
+  									<dt>Telephone</dt>
+									<dd>@{val data = organization.getMetadata(Organization.METADATA_CONTACT_PHONE); if(data) data else "- not set -" }</dd>
 								</dl>
 							</div>
 						</div>
-						<div class="row">
-							<div id="organizations" class="span3"></div>
-						</div>
 					</div>
-					<div id="overall" class="well span8"></div>
+					<div id="organization" class="well span8"></div>
 				</div>
 	    	</div>
     	</div>

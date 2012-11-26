@@ -10,8 +10,10 @@ GET     /assets/*file               						controllers.Assets.at(path="/public", 
 
 # Views
 
+GET		/manager											controllers.Manager.landingPage()
 GET		/manager/											controllers.Manager.landingPage()
 GET		/manager/projects/:proj								controllers.Projects.landingPage(proj: String)
+GET		/manager/projects/:proj/organizations/:org			controllers.Organizations.landingPage(proj: String, org: String)
 
 # JSON data
 
@@ -20,10 +22,12 @@ GET		/manager/recordsPerProject							controllers.Manager.getRecordsPerProject()
 
 GET		/manager/projects									controllers.Projects.getProjects()
 GET		/manager/projects/:proj/overall						controllers.Projects.getOverall(proj: String)
-GET		/manager/projects/:proj/organizations				controllers.Projects.getOrganizations(proj: String)
 GET		/manager/projects/:proj/recordsPerOrganization/:ns	controllers.Projects.getRecordsPerOrganization(proj: String, ns: String)
-GET		/manager/:proj/:org/reports							controllers.Projects.getReportsPerOrganization(proj: String, org: String)
-GET		/manager/:proj/timeline/:org						controllers.Projects.getOrgTimeLine(proj: String, org: String)
+
+GET		/manager/projects/:proj/organizations				controllers.Organizations.getOrganizations(proj: String)
+GET		/manager/projects/:proj/organizations/:org/metadata			controllers.Organizations.getMetadata(proj: String, org: String)
+GET		/manager/projects/:proj/organizations/:org/reports			controllers.Organizations.getReports(proj: String, org: String)
+GET		/manager/projects/:proj/organizations/:org/timeline			controllers.Organizations.getOrgTimeLine(proj: String, org: String)
 
 # OAI
 
