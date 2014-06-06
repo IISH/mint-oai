@@ -1,3 +1,0 @@
-[0m[[0minfo[0m] [0mCompiling 7 Scala sources and 7 Java sources to /usr/local/MintOAI/fromSvn/MintOAI/Application/target/scala-2.9.1/classes...[0m
-[0m[[33mwarn[0m] [0mNote: /usr/local/MintOAI/fromSvn/MintOAI/Application/app/gr/ntua/ivml/mint/oai/model/Project.java uses unchecked or unsafe operations.[0m
-[0m[[33mwarn[0m] [0mNote: Recompile with -Xlint:unchecked for details.[0m

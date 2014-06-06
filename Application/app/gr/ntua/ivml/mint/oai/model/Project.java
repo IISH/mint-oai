@@ -321,12 +321,15 @@ public class Project {
 		BasicDBObject result = new BasicDBObject();
 		JSONObject organizations = new JSONObject();		
 		BasicDBObject metadata = this.getMetadata();
-		
+		System.out.println("PRINT THIS ");
 		if(!metadata.containsField(Project.METADATA_MINT_VERSION) || metadata.getString(Project.METADATA_MINT_VERSION).equals(Project.METADATA_MINT_VERSION_1)) {
+			
 			try {
 				String mintid = this.projectId;
 				if(metadata.containsField(Project.METADATA_MINT_ID)) mintid = metadata.getString(Project.METADATA_MINT_ID);
+				System.out.println(Config.get("mint.api.baseURL") + "/servlets/dbaseorgs?database=" + mintid);
 				organizations = JSONReader.readJsonFromUrl(Config.get("mint.api.baseURL") + "/servlets/dbaseorgs?database=" + mintid);
+				
 				if(organizations.has("organizations")) {
 					JSONArray array = organizations.getJSONArray("organizations");
 					for(int i = 0; i < array.length(); i++) {
@@ -354,8 +357,10 @@ public class Project {
 			}
 		} else if(metadata.getString(Project.METADATA_MINT_VERSION).equals(Project.METADATA_MINT_VERSION_2)) {
 			String minturl = metadata.getString(Project.METADATA_MINT_URL);
-			
+			System.out.println(minturl+"/UrlApi?isApi=true&type=Organization&action=list");
 			organizations = JSONReader.readJsonFromUrl(minturl + "/UrlApi?isApi=true&type=Organization&action=list");
+			
+
 			JSONObject users = JSONReader.readJsonFromUrl(minturl + "/UrlApi?isApi=true&type=User&action=list");
 			
 			if(organizations.has("result")) {
@@ -366,11 +371,28 @@ public class Project {
 					JSONObject organization = array.getJSONObject(i);
 					String id = organization.getString("dbID");
 					BasicDBObject org = new BasicDBObject();
-					String name = organization.has("originalName")?organization.getString("originalName"):organization.getString("englishName");
+					String name = organization.has("englishName")?organization.getString("englishName"):organization.getString("originalName");
 					org.put(Organization.METADATA_NAME, name);
-					org.put(Organization.METADATA_ADDRESS, organization.getString("address"));
-					org.put(Organization.METADATA_COUNTRY, organization.getString("country"));
-					org.put(Organization.METADATA_DESCRIPTION, organization.getString("description"));
+					if  (organization.has("address")) {
+						org.put(Organization.METADATA_ADDRESS, organization.getString("address"));
+					}
+					else {
+						org.put(Organization.METADATA_ADDRESS, "");
+					}
+					if  (organization.has("country")) {
+						org.put(Organization.METADATA_COUNTRY, organization.getString("country"));
+						}
+						else {
+							org.put(Organization.METADATA_COUNTRY, "");
+						}
+					if  (organization.has("description")) {
+						org.put(Organization.METADATA_DESCRIPTION, organization.getString("description"));
+						}
+						else {
+							org.put(Organization.METADATA_DESCRIPTION, "");
+						}
+				//	org.put(Organization.METADATA_COUNTRY, organization.getString("country"));
+				//	org.put(Organization.METADATA_DESCRIPTION, organization.getString("description"));
 					
 					if(usersArray != null && organization.has("primaryContact") && organization.getJSONObject("primaryContact").has("dbID")) {
 						String contactId = organization.getJSONObject("primaryContact").getString("dbID");

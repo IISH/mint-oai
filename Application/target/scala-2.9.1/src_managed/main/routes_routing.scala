@@ -1,6 +1,6 @@
-// @SOURCE:/usr/local/MintOAI/fromSvn/MintOAI/Application/conf/routes
+// @SOURCE:/home/costas/git/mintoai/Application/conf/routes
 // @HASH:5e38ce4afab862c8cf9ddc9e2b261558a1c90ee2
-// @DATE:Mon Nov 26 17:42:55 EET 2012
+// @DATE:Fri Jun 06 13:36:48 EEST 2014
 
 import play.core._
 import play.core.Router._
