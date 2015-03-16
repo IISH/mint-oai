@@ -22,9 +22,14 @@
 	  			google.setOnLoadCallback(function() {
 	  				overall = new MintOAIOrganizationStatistics("@project.getId()", "@organization.getId()", "organization");
 	  				
+					simple_overall = new MintOAIOrganizationTest("@project.getId()", "@organization.getId()", "organization-testing");
 	  				$("#refresh").click(function() {
 		  				overall.refresh();
+						simple_overall.refresh();
 	  				})
+					
+					
+				
 	  			});
 	  		});
 
@@ -63,9 +68,15 @@
 								</dl>
 							</div>
 						</div>
+
+					</div>
+
+					<div id="organization-testing" class="well span8">
 					</div>
 					<div id="organization" class="well span8"></div>
+
 				</div>
+
 	    	</div>
     	</div>
     </body>

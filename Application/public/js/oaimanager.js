@@ -441,6 +441,83 @@ function MintOAIOrganizationStatistics(projectId, organizationId, id) {
 	this.refresh();
 }
 
+
+function MintOAIOrganizationTest(projectId, organizationId, id) {
+	var self = this;
+
+	if(id instanceof jQuery) {
+		this.id = "organization-testing";
+		this.container = id;
+	} else {
+		this.id = id;
+		this.container = $("#" + id);		
+	}
+	
+	this.projectId = projectId;
+	this.organizationId = organizationId;
+	
+	// header
+	this.container.empty();
+	$("<legend>").text("Organization OAI Status").appendTo(this.container);
+
+	
+	// loading page
+	this.loading = $("<div>").attr("id", id + "-loading").appendTo(this.container);
+//	$("<div>").addClass("progress progress-striped active").appendTo(this.loading).append($("<div>").addClass("bar").css("width", "100%"));
+	$("<div>").addClass("spinner").appendTo(this.loading);
+	
+	// contents
+	this.contents = $("<div>").appendTo(this.container);
+	
+	this.refresh();
+}
+
+
+MintOAIOrganizationTest.prototype.refresh = function() {
+	var self = this;
+	
+	this.loading.show();
+	this.contents.hide();
+	
+	var baseUrl = "/manager/projects/" + this.projectId + "/organizations/" + this.organizationId;
+	
+	$.get(baseUrl + "/metadata", function(metadata) {
+		self.organization = metadata;
+		
+		$.get(baseUrl + "/orgcounts", function(orgcounts) {
+			self.loading.hide();
+			self.contents.show();
+			console.log(orgcounts);
+			if(orgcounts.counts != undefined) {
+				var rows = [];
+				
+				for(var i in orgcounts.counts) {
+					var orgcount = orgcounts.counts[i];
+					console.log(orgcount);
+					var row = [];
+					row.push(orgcount.prefix);
+					row.push(orgcount.count);
+					rows.push(row);
+				}
+				
+		        var data = new google.visualization.DataTable();
+		        
+		        data.addColumn('string', 'Namespace');
+		        data.addColumn('number', 'Published records');
+		        
+//		        var dateFormatter = new google.visualization.DateFormat({ pattern: "DD/MM/yyy hh:mm:ss" });
+//		        dateFormatter.format(data, 0);
+		        
+		        data.addRows(rows);
+	
+		        var table = new google.visualization.Table(self.contents[0]);
+		        table.draw(data, { showRowNumber: true, sortColumn: 0, sortAscending: false });
+			}			
+		});
+	});
+	
+}
+
 MintOAIOrganizationStatistics.prototype.refresh = function() {
 	var self = this;
 	
@@ -464,7 +541,6 @@ MintOAIOrganizationStatistics.prototype.refresh = function() {
 					var row = [];
 					var date = new Date();
 					date.setTime(report.datestamp);
-					console.log(date);
 					row.push(date);
 					row.push(report.insertedRecords);
 					row.push(report.conflictedRecords);

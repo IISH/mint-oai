@@ -1,6 +1,6 @@
-// @SOURCE:/home/costas/git/mintoai/Application/conf/routes
-// @HASH:5e38ce4afab862c8cf9ddc9e2b261558a1c90ee2
-// @DATE:Fri Jun 06 13:36:48 EEST 2014
+// @SOURCE:/home/costas/toplay/mintoai/Application/conf/routes
+// @HASH:5a31fed53dee2869a6cd49374ba46017df3dee76
+// @DATE:Mon Mar 16 13:12:28 EET 2015
 
 import play.core._
 import play.core.Router._
@@ -74,34 +74,38 @@ val controllers_Organizations_getReports13 = Route("GET", PathPattern(List(Stati
 val controllers_Organizations_getOrgTimeLine14 = Route("GET", PathPattern(List(StaticPart("/manager/projects/"),DynamicPart("proj", """[^/]+"""),StaticPart("/organizations/"),DynamicPart("org", """[^/]+"""),StaticPart("/timeline"))))
                     
 
-// @LINE:34
-val controllers_OAI_show15 = Route("GET", PathPattern(List(StaticPart("/"),DynamicPart("collection", """[^/]+"""),StaticPart("/oai"))))
+// @LINE:32
+val controllers_Organizations_getOrganizationCounts15 = Route("GET", PathPattern(List(StaticPart("/manager/projects/"),DynamicPart("proj", """[^/]+"""),StaticPart("/organizations/"),DynamicPart("org", """[^/]+"""),StaticPart("/orgcounts"))))
                     
 
-// @LINE:38
-val controllers_Administration_landingPage16 = Route("GET", PathPattern(List(StaticPart("/admin"))))
+// @LINE:35
+val controllers_OAI_show16 = Route("GET", PathPattern(List(StaticPart("/"),DynamicPart("collection", """[^/]+"""),StaticPart("/oai"))))
                     
 
 // @LINE:39
-val controllers_Administration_landingPage17 = Route("GET", PathPattern(List(StaticPart("/admin/"))))
+val controllers_Administration_landingPage17 = Route("GET", PathPattern(List(StaticPart("/admin"))))
                     
 
 // @LINE:40
-val controllers_Administration_projects18 = Route("GET", PathPattern(List(StaticPart("/admin/projects"))))
+val controllers_Administration_landingPage18 = Route("GET", PathPattern(List(StaticPart("/admin/"))))
                     
 
 // @LINE:41
-val controllers_Administration_organizations19 = Route("GET", PathPattern(List(StaticPart("/admin/projects/"),DynamicPart("proj", """[^/]+"""),StaticPart("/organizations"))))
+val controllers_Administration_projects19 = Route("GET", PathPattern(List(StaticPart("/admin/projects"))))
                     
 
-// @LINE:45
-val controllers_Administration_updateDetails20 = Route("POST", PathPattern(List(StaticPart("/admin/projects/"),DynamicPart("proj", """[^/]+"""),StaticPart("/update"))))
+// @LINE:42
+val controllers_Administration_organizations20 = Route("GET", PathPattern(List(StaticPart("/admin/projects/"),DynamicPart("proj", """[^/]+"""),StaticPart("/organizations"))))
                     
 
 // @LINE:46
-val controllers_Administration_organizations21 = Route("POST", PathPattern(List(StaticPart("/admin/projects/"),DynamicPart("proj", """[^/]+"""),StaticPart("/organizations"))))
+val controllers_Administration_updateDetails21 = Route("POST", PathPattern(List(StaticPart("/admin/projects/"),DynamicPart("proj", """[^/]+"""),StaticPart("/update"))))
                     
-def documentation = List(("""GET""","""/""","""controllers.Manager.index()"""),("""GET""","""/assets/$file<.+>""","""controllers.Assets.at(path:String = "/public", file:String)"""),("""GET""","""/manager""","""controllers.Manager.landingPage()"""),("""GET""","""/manager/""","""controllers.Manager.landingPage()"""),("""GET""","""/manager/projects/$proj<[^/]+>""","""controllers.Projects.landingPage(proj:String)"""),("""GET""","""/manager/projects/$proj<[^/]+>/organizations/$org<[^/]+>""","""controllers.Organizations.landingPage(proj:String, org:String)"""),("""GET""","""/manager/overall""","""controllers.Manager.getOverall()"""),("""GET""","""/manager/recordsPerProject""","""controllers.Manager.getRecordsPerProject()"""),("""GET""","""/manager/projects""","""controllers.Projects.getProjects()"""),("""GET""","""/manager/projects/$proj<[^/]+>/overall""","""controllers.Projects.getOverall(proj:String)"""),("""GET""","""/manager/projects/$proj<[^/]+>/recordsPerOrganization/$ns<[^/]+>""","""controllers.Projects.getRecordsPerOrganization(proj:String, ns:String)"""),("""GET""","""/manager/projects/$proj<[^/]+>/organizations""","""controllers.Organizations.getOrganizations(proj:String)"""),("""GET""","""/manager/projects/$proj<[^/]+>/organizations/$org<[^/]+>/metadata""","""controllers.Organizations.getMetadata(proj:String, org:String)"""),("""GET""","""/manager/projects/$proj<[^/]+>/organizations/$org<[^/]+>/reports""","""controllers.Organizations.getReports(proj:String, org:String)"""),("""GET""","""/manager/projects/$proj<[^/]+>/organizations/$org<[^/]+>/timeline""","""controllers.Organizations.getOrgTimeLine(proj:String, org:String)"""),("""GET""","""/$collection<[^/]+>/oai""","""controllers.OAI.show(collection:String)"""),("""GET""","""/admin""","""controllers.Administration.landingPage()"""),("""GET""","""/admin/""","""controllers.Administration.landingPage()"""),("""GET""","""/admin/projects""","""controllers.Administration.projects()"""),("""GET""","""/admin/projects/$proj<[^/]+>/organizations""","""controllers.Administration.organizations(proj:String)"""),("""POST""","""/admin/projects/$proj<[^/]+>/update""","""controllers.Administration.updateDetails(proj:String)"""),("""POST""","""/admin/projects/$proj<[^/]+>/organizations""","""controllers.Administration.organizations(proj:String)"""))
+
+// @LINE:47
+val controllers_Administration_organizations22 = Route("POST", PathPattern(List(StaticPart("/admin/projects/"),DynamicPart("proj", """[^/]+"""),StaticPart("/organizations"))))
+                    
+def documentation = List(("""GET""","""/""","""controllers.Manager.index()"""),("""GET""","""/assets/$file<.+>""","""controllers.Assets.at(path:String = "/public", file:String)"""),("""GET""","""/manager""","""controllers.Manager.landingPage()"""),("""GET""","""/manager/""","""controllers.Manager.landingPage()"""),("""GET""","""/manager/projects/$proj<[^/]+>""","""controllers.Projects.landingPage(proj:String)"""),("""GET""","""/manager/projects/$proj<[^/]+>/organizations/$org<[^/]+>""","""controllers.Organizations.landingPage(proj:String, org:String)"""),("""GET""","""/manager/overall""","""controllers.Manager.getOverall()"""),("""GET""","""/manager/recordsPerProject""","""controllers.Manager.getRecordsPerProject()"""),("""GET""","""/manager/projects""","""controllers.Projects.getProjects()"""),("""GET""","""/manager/projects/$proj<[^/]+>/overall""","""controllers.Projects.getOverall(proj:String)"""),("""GET""","""/manager/projects/$proj<[^/]+>/recordsPerOrganization/$ns<[^/]+>""","""controllers.Projects.getRecordsPerOrganization(proj:String, ns:String)"""),("""GET""","""/manager/projects/$proj<[^/]+>/organizations""","""controllers.Organizations.getOrganizations(proj:String)"""),("""GET""","""/manager/projects/$proj<[^/]+>/organizations/$org<[^/]+>/metadata""","""controllers.Organizations.getMetadata(proj:String, org:String)"""),("""GET""","""/manager/projects/$proj<[^/]+>/organizations/$org<[^/]+>/reports""","""controllers.Organizations.getReports(proj:String, org:String)"""),("""GET""","""/manager/projects/$proj<[^/]+>/organizations/$org<[^/]+>/timeline""","""controllers.Organizations.getOrgTimeLine(proj:String, org:String)"""),("""GET""","""/manager/projects/$proj<[^/]+>/organizations/$org<[^/]+>/orgcounts""","""controllers.Organizations.getOrganizationCounts(proj:String, org:String)"""),("""GET""","""/$collection<[^/]+>/oai""","""controllers.OAI.show(collection:String)"""),("""GET""","""/admin""","""controllers.Administration.landingPage()"""),("""GET""","""/admin/""","""controllers.Administration.landingPage()"""),("""GET""","""/admin/projects""","""controllers.Administration.projects()"""),("""GET""","""/admin/projects/$proj<[^/]+>/organizations""","""controllers.Administration.organizations(proj:String)"""),("""POST""","""/admin/projects/$proj<[^/]+>/update""","""controllers.Administration.updateDetails(proj:String)"""),("""POST""","""/admin/projects/$proj<[^/]+>/organizations""","""controllers.Administration.organizations(proj:String)"""))
              
     
 def routes:PartialFunction[RequestHeader,Handler] = {        
@@ -226,18 +230,18 @@ case controllers_Organizations_getOrgTimeLine14(params) => {
 }
                     
 
-// @LINE:34
-case controllers_OAI_show15(params) => {
-   call(params.fromPath[String]("collection", None)) { (collection) =>
-        invokeHandler(_root_.controllers.OAI.show(collection), HandlerDef(this, "controllers.OAI", "show", Seq(classOf[String])))
+// @LINE:32
+case controllers_Organizations_getOrganizationCounts15(params) => {
+   call(params.fromPath[String]("proj", None), params.fromPath[String]("org", None)) { (proj, org) =>
+        invokeHandler(_root_.controllers.Organizations.getOrganizationCounts(proj, org), HandlerDef(this, "controllers.Organizations", "getOrganizationCounts", Seq(classOf[String], classOf[String])))
    }
 }
                     
 
-// @LINE:38
-case controllers_Administration_landingPage16(params) => {
-   call { 
-        invokeHandler(_root_.controllers.Administration.landingPage(), HandlerDef(this, "controllers.Administration", "landingPage", Nil))
+// @LINE:35
+case controllers_OAI_show16(params) => {
+   call(params.fromPath[String]("collection", None)) { (collection) =>
+        invokeHandler(_root_.controllers.OAI.show(collection), HandlerDef(this, "controllers.OAI", "show", Seq(classOf[String])))
    }
 }
                     
@@ -251,31 +255,39 @@ case controllers_Administration_landingPage17(params) => {
                     
 
 // @LINE:40
-case controllers_Administration_projects18(params) => {
+case controllers_Administration_landingPage18(params) => {
+   call { 
+        invokeHandler(_root_.controllers.Administration.landingPage(), HandlerDef(this, "controllers.Administration", "landingPage", Nil))
+   }
+}
+                    
+
+// @LINE:41
+case controllers_Administration_projects19(params) => {
    call { 
         invokeHandler(_root_.controllers.Administration.projects(), HandlerDef(this, "controllers.Administration", "projects", Nil))
    }
 }
                     
 
-// @LINE:41
-case controllers_Administration_organizations19(params) => {
+// @LINE:42
+case controllers_Administration_organizations20(params) => {
    call(params.fromPath[String]("proj", None)) { (proj) =>
         invokeHandler(_root_.controllers.Administration.organizations(proj), HandlerDef(this, "controllers.Administration", "organizations", Seq(classOf[String])))
    }
 }
                     
 
-// @LINE:45
-case controllers_Administration_updateDetails20(params) => {
+// @LINE:46
+case controllers_Administration_updateDetails21(params) => {
    call(params.fromPath[String]("proj", None)) { (proj) =>
         invokeHandler(_root_.controllers.Administration.updateDetails(proj), HandlerDef(this, "controllers.Administration", "updateDetails", Seq(classOf[String])))
    }
 }
                     
 
-// @LINE:46
-case controllers_Administration_organizations21(params) => {
+// @LINE:47
+case controllers_Administration_organizations22(params) => {
    call(params.fromPath[String]("proj", None)) { (proj) =>
         invokeHandler(_root_.controllers.Administration.organizations(proj), HandlerDef(this, "controllers.Administration", "organizations", Seq(classOf[String])))
    }

@@ -29,6 +29,7 @@ GET		/manager/projects/:proj/organizations/:org/metadata			controllers.Organizat
 GET		/manager/projects/:proj/organizations/:org/reports			controllers.Organizations.getReports(proj: String, org: String)
 GET		/manager/projects/:proj/organizations/:org/timeline			controllers.Organizations.getOrgTimeLine(proj: String, org: String)
 
+GET		/manager/projects/:proj/organizations/:org/orgcounts			controllers.Organizations.getOrganizationCounts(proj: String, org: String)
 # OAI
 
 GET		/:collection/oai									controllers.OAI.show(collection: String)

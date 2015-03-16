@@ -97,14 +97,12 @@ public class Organization {
 	public BasicDBObject getMetadata() {
 		if(this.metadata == null) {
 			BasicDBObject all = this.project.getOrganizationsMetadata();
-			System.out.println(all);
 			
 			if(all.containsField(this.organizationId.toString())) {
 				this.metadata = (BasicDBObject) all.get(this.organizationId.toString());
 			} else this.metadata = new BasicDBObject();
 		}
 		
-		System.out.println(this.metadata);
 		
 		return this.metadata;
 	}

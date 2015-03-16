@@ -321,13 +321,13 @@ public class Project {
 		BasicDBObject result = new BasicDBObject();
 		JSONObject organizations = new JSONObject();		
 		BasicDBObject metadata = this.getMetadata();
-		System.out.println("PRINT THIS ");
+		//System.out.println("PRINT THIS ");
 		if(!metadata.containsField(Project.METADATA_MINT_VERSION) || metadata.getString(Project.METADATA_MINT_VERSION).equals(Project.METADATA_MINT_VERSION_1)) {
 			
 			try {
 				String mintid = this.projectId;
 				if(metadata.containsField(Project.METADATA_MINT_ID)) mintid = metadata.getString(Project.METADATA_MINT_ID);
-				System.out.println(Config.get("mint.api.baseURL") + "/servlets/dbaseorgs?database=" + mintid);
+				//System.out.println(Config.get("mint.api.baseURL") + "/servlets/dbaseorgs?database=" + mintid);
 				organizations = JSONReader.readJsonFromUrl(Config.get("mint.api.baseURL") + "/servlets/dbaseorgs?database=" + mintid);
 				
 				if(organizations.has("organizations")) {
@@ -357,7 +357,7 @@ public class Project {
 			}
 		} else if(metadata.getString(Project.METADATA_MINT_VERSION).equals(Project.METADATA_MINT_VERSION_2)) {
 			String minturl = metadata.getString(Project.METADATA_MINT_URL);
-			System.out.println(minturl+"/UrlApi?isApi=true&type=Organization&action=list");
+			//System.out.println(minturl+"/UrlApi?isApi=true&type=Organization&action=list");
 			organizations = JSONReader.readJsonFromUrl(minturl + "/UrlApi?isApi=true&type=Organization&action=list");
 			
 

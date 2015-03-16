@@ -415,7 +415,7 @@ public class OAI extends Controller {
 		}
 		OAIPMHtype oai = fact.createOAIPMHtype();
 		oai.setListRecords(list);
-		System.out.println("size:"+list.getRecord().size());
+		//System.out.println("size:"+list.getRecord().size());
 		try {
 			oai.setResponseDate(getCurrentDate());
 		} catch (DatatypeConfigurationException e) {
@@ -585,11 +585,11 @@ public class OAI extends Controller {
 		
 		if(from != null && until != null){
 			long tmpVal = stringDateToMillis(from);
-			System.out.println("from:"+tmpVal + " "+from);
+			//System.out.println("from:"+tmpVal + " "+from);
 			BasicDBObject range = new BasicDBObject();
 			range.put("$gt", tmpVal);
 			tmpVal = stringDateToMillis(until);
-			System.out.println("until:"+tmpVal + " "+until);
+			//System.out.println("until:"+tmpVal + " "+until);
 			range.put("$lt", tmpVal);
 			q.put("datestamp", range);
 		}else if(from != null && until == null){
@@ -607,7 +607,7 @@ public class OAI extends Controller {
 		if(set != null){
 			q.put("orgId", Integer.parseInt(set));
 		}
-		System.out.println(q);
+		//System.out.println(q);
 		int count = MongoDB.getDB().getCollection(collectionName).find(q).limit(size).count();
 		if(count == 0){
 			return getError(VerbType.LIST_RECORDS, OAIPMHerrorcodeType.NO_RECORDS_MATCH, from, until, set, prefix, null, collectionName);

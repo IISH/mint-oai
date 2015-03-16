@@ -57,6 +57,30 @@ public class Organizations extends Controller {
 		response().setContentType("application/json");
 		return ok(com.mongodb.util.JSON.serialize(result));
 	}
+
+	
+	public static Result getOrganizationCounts(String proj,String orgId){
+		Project project = new Project(proj);
+		Organization org = project.getOrganization(Integer.parseInt(orgId));
+		BasicDBObject result = new BasicDBObject();
+		
+		ArrayList<BasicDBObject> counts = new ArrayList<BasicDBObject>();
+
+		List<String> prefixes = project.getNamespaces();
+		Integer count = 0;
+		for(String prefix: prefixes) {
+                        BasicDBObject namespace = new BasicDBObject();
+                        namespace.put("prefix", prefix);
+			count = org.getRecordsCount(prefix);
+                        namespace.put("count", count);
+                        counts.add(namespace);
+                }
+		
+		result.put("counts",counts);
+		response().setContentType("application/json");
+		return ok(com.mongodb.util.JSON.serialize(result));
+
+	}
 	
 	public static Result getMetadata(String projectId, String organizationId) {
 		Project project = new Project(projectId);

@@ -1,6 +1,6 @@
-// @SOURCE:/home/costas/git/mintoai/Application/conf/routes
-// @HASH:5e38ce4afab862c8cf9ddc9e2b261558a1c90ee2
-// @DATE:Fri Jun 06 13:36:48 EEST 2014
+// @SOURCE:/home/costas/toplay/mintoai/Application/conf/routes
+// @HASH:5a31fed53dee2869a6cd49374ba46017df3dee76
+// @DATE:Mon Mar 16 13:12:28 EET 2015
 
 import play.core._
 import play.core.Router._
@@ -12,13 +12,14 @@ import play.libs.F
 import Router.queryString
 
 
+// @LINE:47
 // @LINE:46
-// @LINE:45
+// @LINE:42
 // @LINE:41
 // @LINE:40
 // @LINE:39
-// @LINE:38
-// @LINE:34
+// @LINE:35
+// @LINE:32
 // @LINE:30
 // @LINE:29
 // @LINE:28
@@ -53,52 +54,52 @@ def at(file:String) = {
 }
                             
 
+// @LINE:47
 // @LINE:46
-// @LINE:45
+// @LINE:42
 // @LINE:41
 // @LINE:40
 // @LINE:39
-// @LINE:38
 class ReverseAdministration {
     
 
 
  
-// @LINE:46
-// @LINE:41
+// @LINE:47
+// @LINE:42
 def organizations(proj:String) = {
    (proj) match {
-// @LINE:41
+// @LINE:42
 case (proj) if true => Call("GET", "/admin/projects/" + implicitly[PathBindable[String]].unbind("proj", proj) + "/organizations")
                                                                 
-// @LINE:46
+// @LINE:47
 case (proj) if true => Call("POST", "/admin/projects/" + implicitly[PathBindable[String]].unbind("proj", proj) + "/organizations")
                                                                     
    }
 }
                                                         
  
+// @LINE:40
 // @LINE:39
-// @LINE:38
 def landingPage() = {
    () match {
-// @LINE:38
+// @LINE:39
 case () if true => Call("GET", "/admin")
                                                                 
-// @LINE:39
+// @LINE:40
 case () if true => Call("GET", "/admin/")
                                                                     
    }
 }
                                                         
  
-// @LINE:40
+// @LINE:41
 def projects() = {
    Call("GET", "/admin/projects")
 }
                                                         
  
-// @LINE:45
+// @LINE:46
 def updateDetails(proj:String) = {
    Call("POST", "/admin/projects/" + implicitly[PathBindable[String]].unbind("proj", proj) + "/update")
 }
@@ -109,6 +110,7 @@ def updateDetails(proj:String) = {
 }
                             
 
+// @LINE:32
 // @LINE:30
 // @LINE:29
 // @LINE:28
@@ -140,6 +142,12 @@ def getOrganizations(proj:String) = {
 // @LINE:16
 def landingPage(proj:String, org:String) = {
    Call("GET", "/manager/projects/" + implicitly[PathBindable[String]].unbind("proj", proj) + "/organizations/" + implicitly[PathBindable[String]].unbind("org", org))
+}
+                                                        
+ 
+// @LINE:32
+def getOrganizationCounts(proj:String, org:String) = {
+   Call("GET", "/manager/projects/" + implicitly[PathBindable[String]].unbind("proj", proj) + "/organizations/" + implicitly[PathBindable[String]].unbind("org", org) + "/orgcounts")
 }
                                                         
  
@@ -201,13 +209,13 @@ case () if true => Call("GET", "/manager/")
 }
                             
 
-// @LINE:34
+// @LINE:35
 class ReverseOAI {
     
 
 
  
-// @LINE:34
+// @LINE:35
 def show(collection:String) = {
    Call("GET", "/" + implicitly[PathBindable[String]].unbind("collection", collection) + "/oai")
 }
@@ -259,13 +267,14 @@ def landingPage(proj:String) = {
                     
 
 
+// @LINE:47
 // @LINE:46
-// @LINE:45
+// @LINE:42
 // @LINE:41
 // @LINE:40
 // @LINE:39
-// @LINE:38
-// @LINE:34
+// @LINE:35
+// @LINE:32
 // @LINE:30
 // @LINE:29
 // @LINE:28
@@ -305,19 +314,19 @@ def at = JavascriptReverseRoute(
 }
                             
 
+// @LINE:47
 // @LINE:46
-// @LINE:45
+// @LINE:42
 // @LINE:41
 // @LINE:40
 // @LINE:39
-// @LINE:38
 class ReverseAdministration {
     
 
 
  
-// @LINE:46
-// @LINE:41
+// @LINE:47
+// @LINE:42
 def organizations = JavascriptReverseRoute(
    "controllers.Administration.organizations",
    """
@@ -333,8 +342,8 @@ def organizations = JavascriptReverseRoute(
 )
                                                         
  
+// @LINE:40
 // @LINE:39
-// @LINE:38
 def landingPage = JavascriptReverseRoute(
    "controllers.Administration.landingPage",
    """
@@ -350,7 +359,7 @@ def landingPage = JavascriptReverseRoute(
 )
                                                         
  
-// @LINE:40
+// @LINE:41
 def projects = JavascriptReverseRoute(
    "controllers.Administration.projects",
    """
@@ -361,7 +370,7 @@ def projects = JavascriptReverseRoute(
 )
                                                         
  
-// @LINE:45
+// @LINE:46
 def updateDetails = JavascriptReverseRoute(
    "controllers.Administration.updateDetails",
    """
@@ -377,6 +386,7 @@ def updateDetails = JavascriptReverseRoute(
 }
                             
 
+// @LINE:32
 // @LINE:30
 // @LINE:29
 // @LINE:28
@@ -426,6 +436,17 @@ def landingPage = JavascriptReverseRoute(
    """
       function(proj,org) {
       return _wA({method:"GET", url:"/manager/projects/" + (""" + implicitly[PathBindable[String]].javascriptUnbind + """)("proj", proj) + "/organizations/" + (""" + implicitly[PathBindable[String]].javascriptUnbind + """)("org", org)})
+      }
+   """
+)
+                                                        
+ 
+// @LINE:32
+def getOrganizationCounts = JavascriptReverseRoute(
+   "controllers.Organizations.getOrganizationCounts",
+   """
+      function(proj,org) {
+      return _wA({method:"GET", url:"/manager/projects/" + (""" + implicitly[PathBindable[String]].javascriptUnbind + """)("proj", proj) + "/organizations/" + (""" + implicitly[PathBindable[String]].javascriptUnbind + """)("org", org) + "/orgcounts"})
       }
    """
 )
@@ -512,13 +533,13 @@ def landingPage = JavascriptReverseRoute(
 }
                             
 
-// @LINE:34
+// @LINE:35
 class ReverseOAI {
     
 
 
  
-// @LINE:34
+// @LINE:35
 def show = JavascriptReverseRoute(
    "controllers.OAI.show",
    """
@@ -595,13 +616,14 @@ def landingPage = JavascriptReverseRoute(
                     
 
 
+// @LINE:47
 // @LINE:46
-// @LINE:45
+// @LINE:42
 // @LINE:41
 // @LINE:40
 // @LINE:39
-// @LINE:38
-// @LINE:34
+// @LINE:35
+// @LINE:32
 // @LINE:30
 // @LINE:29
 // @LINE:28
@@ -636,36 +658,36 @@ def at(path:String, file:String) = new play.api.mvc.HandlerRef(
 }
                             
 
+// @LINE:47
 // @LINE:46
-// @LINE:45
+// @LINE:42
 // @LINE:41
 // @LINE:40
 // @LINE:39
-// @LINE:38
 class ReverseAdministration {
     
 
 
  
-// @LINE:41
+// @LINE:42
 def organizations(proj:String) = new play.api.mvc.HandlerRef(
    controllers.Administration.organizations(proj), HandlerDef(this, "controllers.Administration", "organizations", Seq(classOf[String]))
 )
                               
  
-// @LINE:38
+// @LINE:39
 def landingPage() = new play.api.mvc.HandlerRef(
    controllers.Administration.landingPage(), HandlerDef(this, "controllers.Administration", "landingPage", Seq())
 )
                               
  
-// @LINE:40
+// @LINE:41
 def projects() = new play.api.mvc.HandlerRef(
    controllers.Administration.projects(), HandlerDef(this, "controllers.Administration", "projects", Seq())
 )
                               
  
-// @LINE:45
+// @LINE:46
 def updateDetails(proj:String) = new play.api.mvc.HandlerRef(
    controllers.Administration.updateDetails(proj), HandlerDef(this, "controllers.Administration", "updateDetails", Seq(classOf[String]))
 )
@@ -676,6 +698,7 @@ def updateDetails(proj:String) = new play.api.mvc.HandlerRef(
 }
                             
 
+// @LINE:32
 // @LINE:30
 // @LINE:29
 // @LINE:28
@@ -707,6 +730,12 @@ def getOrganizations(proj:String) = new play.api.mvc.HandlerRef(
 // @LINE:16
 def landingPage(proj:String, org:String) = new play.api.mvc.HandlerRef(
    controllers.Organizations.landingPage(proj, org), HandlerDef(this, "controllers.Organizations", "landingPage", Seq(classOf[String], classOf[String]))
+)
+                              
+ 
+// @LINE:32
+def getOrganizationCounts(proj:String, org:String) = new play.api.mvc.HandlerRef(
+   controllers.Organizations.getOrganizationCounts(proj, org), HandlerDef(this, "controllers.Organizations", "getOrganizationCounts", Seq(classOf[String], classOf[String]))
 )
                               
  
@@ -760,13 +789,13 @@ def landingPage() = new play.api.mvc.HandlerRef(
 }
                             
 
-// @LINE:34
+// @LINE:35
 class ReverseOAI {
     
 
 
  
-// @LINE:34
+// @LINE:35
 def show(collection:String) = new play.api.mvc.HandlerRef(
    controllers.OAI.show(collection), HandlerDef(this, "controllers.OAI", "show", Seq(classOf[String]))
 )

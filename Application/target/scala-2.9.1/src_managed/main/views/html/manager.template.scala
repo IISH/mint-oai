@@ -79,6 +79,7 @@ Seq[Any](format.raw/*1.1*/("""<!DOCTYPE html>
 		<div class="container-fluid">
 			<div class="row">
 				<p class="span2">
+					trying to refresd
 					Powered By <a href="http://mint.image.ece.ntua.gr/" rel="author">Mint</a>.
 				</p>
 			</div>
@@ -99,9 +100,9 @@ Seq[Any](format.raw/*1.1*/("""<!DOCTYPE html>
 }
                 /*
                     -- GENERATED --
-                    DATE: Fri Jun 06 13:36:49 EEST 2014
-                    SOURCE: /home/costas/git/mintoai/Application/app/views/manager.scala.html
-                    HASH: f7a4ad1c30dfb6151f0674cc9b152ecc1ee03a7b
+                    DATE: Mon Mar 16 10:01:04 EET 2015
+                    SOURCE: /home/costas/toplay/mintoai/Application/app/views/manager.scala.html
+                    HASH: e46f2c89826794aba8cfefd259de77bbd35a1cf5
                     MATRIX: 821->0|940->84|954->90|1010->125|1105->185|1119->191|1166->217|1266->282|1280->288|1333->320|1477->429|1491->435|1548->471|1638->525|1653->531|1704->560|1794->614|1809->620|1861->650|2018->760|2089->784|2178->826|2270->871|2478->1032|2623->1131|2679->1141|2735->1151
                     LINES: 30->1|34->5|34->5|34->5|35->6|35->6|35->6|36->7|36->7|36->7|38->9|38->9|38->9|39->10|39->10|39->10|40->11|40->11|40->11|42->13|42->13|44->15|45->16|49->20|52->23|53->24|54->25
                     -- GENERATED --
