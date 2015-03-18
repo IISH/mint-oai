@@ -458,7 +458,7 @@ function MintOAIOrganizationTest(projectId, organizationId, id) {
 	
 	// header
 	this.container.empty();
-	$("<legend>").text("Organization OAI Status").appendTo(this.container);
+	$("<legend>").text("Oai Status").appendTo(this.container);
 
 	
 	// loading page
@@ -480,38 +480,40 @@ MintOAIOrganizationTest.prototype.refresh = function() {
 	this.contents.hide();
 	
 	var baseUrl = "/manager/projects/" + this.projectId + "/organizations/" + this.organizationId;
-	
+	var oaiUrl = "/"+this.projectId +"/oai?verb=ListRecords&set="  + this.organizationId;
+
 	$.get(baseUrl + "/metadata", function(metadata) {
 		self.organization = metadata;
 		
+	
+
 		$.get(baseUrl + "/orgcounts", function(orgcounts) {
 			self.loading.hide();
 			self.contents.show();
-			console.log(orgcounts);
 			if(orgcounts.counts != undefined) {
 				var rows = [];
-				
 				for(var i in orgcounts.counts) {
 					var orgcount = orgcounts.counts[i];
-					console.log(orgcount);
 					var row = [];
-					row.push(orgcount.prefix);
+					var url = oaiUrl + "&metadataPrefix=" + orgcount.prefix; 
+					var text = " "+orgcount.prefix+" ";
+					var link = "<a href="+url+" target=_blank title='View Records'>"+text+"</a>";
+					row.push(link);
+				//	row.push(orgcount.prefix);
 					row.push(orgcount.count);
 					rows.push(row);
 				}
 				
 		        var data = new google.visualization.DataTable();
-		        
 		        data.addColumn('string', 'Namespace');
 		        data.addColumn('number', 'Published records');
-		        
+		//	data.addColumn('string','Show records');
 //		        var dateFormatter = new google.visualization.DateFormat({ pattern: "DD/MM/yyy hh:mm:ss" });
 //		        dateFormatter.format(data, 0);
 		        
 		        data.addRows(rows);
-	
 		        var table = new google.visualization.Table(self.contents[0]);
-		        table.draw(data, { showRowNumber: true, sortColumn: 0, sortAscending: false });
+		        table.draw(data, { showRowNumber: false, sortColumn: 0, sortAscending: false , allowHtml: true});
 			}			
 		});
 	});
