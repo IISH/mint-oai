@@ -1,6 +1,6 @@
-// @SOURCE:/home/costas/toplay/mintoai/Application/conf/routes
+// @SOURCE:/home/costas/git/mintoai/Application/conf/routes
 // @HASH:5a31fed53dee2869a6cd49374ba46017df3dee76
-// @DATE:Mon Mar 16 13:12:28 EET 2015
+// @DATE:Fri Mar 11 21:52:26 EET 2016
 
 package controllers;
 

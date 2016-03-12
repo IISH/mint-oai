@@ -74,7 +74,7 @@ Seq[Any](format.raw/*1.48*/("""
 					<div id="sidebar" class="well sidebar span3">
 						<div class="row">
 							<div id="project-info" class="span3">
-								<legend>Information<a class="oai-action" target="_blank" style="float: right" title=""""),_display_(Seq[Any](/*48.95*/project/*48.102*/.getTitle())),format.raw/*48.113*/(""" OAI url for ese namespace" href='"""),_display_(Seq[Any](/*48.148*/project/*48.155*/.getOAIUrl("ese"))),format.raw/*48.172*/("""'></a></legend>
+								<legend>Information<a class="oai-action" target="_blank" style="float: right" title=""""),_display_(Seq[Any](/*48.95*/project/*48.102*/.getTitle())),format.raw/*48.113*/(""" OAI url for rdf namespace" href='"""),_display_(Seq[Any](/*48.148*/project/*48.155*/.getOAIUrl("rdf"))),format.raw/*48.172*/("""'></a></legend>
 								<dl class="dl-horizontal list">
   									<dt>Title</dt>
 									<dd>"""),_display_(Seq[Any](/*51.15*/project/*51.22*/.getTitle())),format.raw/*51.33*/("""</dd>
@@ -102,7 +102,8 @@ Seq[Any](format.raw/*1.48*/("""
         	</div>
       </div>
 	</footer>
-</html>"""))}
+</html>
+"""))}
     }
     
     def render(project:gr.ntua.ivml.mint.oai.model.Project) = apply(project)
@@ -114,9 +115,9 @@ Seq[Any](format.raw/*1.48*/("""
 }
                 /*
                     -- GENERATED --
-                    DATE: Fri Mar 13 18:46:23 EET 2015
-                    SOURCE: /home/costas/toplay/mintoai/Application/app/views/project.scala.html
-                    HASH: 504e9fa9da043e05112d7bde5608708929334a71
+                    DATE: Fri Mar 11 21:52:33 EET 2016
+                    SOURCE: /home/costas/git/mintoai/Application/app/views/project.scala.html
+                    HASH: 5a4713e47fbd8e2247ecfd5640407fea1786aceb
                     MATRIX: 786->1|909->47|1042->145|1056->151|1112->186|1204->243|1218->249|1265->275|1363->337|1378->343|1432->375|1494->401|1509->407|1567->443|1661->501|1676->507|1737->546|1831->604|1846->610|1897->639|1991->697|2006->703|2052->727|2140->779|2155->785|2207->815|2452->1013|2523->1037|2617->1084|2683->1103|2773->1146|2865->1191|2961->1240|3013->1256|3029->1263|3059->1271|3109->1274|3220->1338|3272->1354|3288->1361|3318->1369|3368->1372|3484->1441|3615->1525|3667->1541|3683->1548|3713->1556|3763->1559|3832->1582|3888->1592|3944->1602|4182->1804|4198->1811|4231->1822|4641->2196|4658->2203|4692->2214|4764->2249|4781->2256|4821->2273|4956->2372|4972->2379|5005->2390|5095->2444|5111->2451|5150->2468|5260->2542|5276->2549|5311->2562|5350->2565|5366->2572|5396->2580
                     LINES: 27->1|30->1|37->8|37->8|37->8|38->9|38->9|38->9|39->10|39->10|39->10|40->11|40->11|40->11|41->12|41->12|41->12|42->13|42->13|42->13|43->14|43->14|43->14|44->15|44->15|44->15|47->18|47->18|48->19|48->19|50->21|51->22|52->23|52->23|52->23|52->23|52->23|53->24|53->24|53->24|53->24|53->24|55->26|57->28|57->28|57->28|57->28|57->28|58->29|59->30|60->31|68->39|68->39|68->39|77->48|77->48|77->48|77->48|77->48|77->48|80->51|80->51|80->51|82->53|82->53|82->53|84->55|84->55|84->55|84->55|84->55|84->55
                     -- GENERATED --

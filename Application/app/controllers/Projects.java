@@ -59,6 +59,7 @@ public class Projects extends Controller {
 				if(project == null) {
 					project = new BasicDBObject();
 					project.append("projectName", setName);
+					project.append("metadata","");	
 				}
 				
 				list.append(setName, project);

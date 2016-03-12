@@ -46,11 +46,19 @@ public class Project {
 	public static BasicDBList getProjectsMetadata() {
 		BasicDBObject q = new BasicDBObject();
 		q.put("id", "projects");
-		BasicDBObject metadata = (BasicDBObject) MongoDB.getDB().getCollection("metadata").findOne(q);
+		
+		BasicDBObject metadata;
+		
+		if (MongoDB.getDB().getCollection("metadata").findOne(q) == null ) {
+			return new BasicDBList();
+		}
+		else {
+		 metadata = (BasicDBObject) MongoDB.getDB().getCollection("metadata").findOne(q);
 		
 		BasicDBList projects = (BasicDBList) metadata.get("projects");
 		
 		return projects;
+		}	
 	}
 	
 	
