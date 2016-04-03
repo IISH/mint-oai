@@ -1,0 +1,37 @@
+@(e: Exception)
+<!DOCTYPE html>
+
+<html>
+<head>
+    <link rel="stylesheet" media="screen" href='@routes.Assets.at("css/bootstrap.min.css")'>
+    <link rel="stylesheet" media="screen" href='@routes.Assets.at("css/main.css")'>
+    <link rel="shortcut icon" type="image/png" href='@routes.Assets.at("images/favicon.png")'>
+    <script src='@routes.Assets.at("js/jquery-1.7.1.min.js")' type="text/javascript"></script>
+    <script src='@routes.Assets.at("js/bootstrap.js")' type="text/javascript"></script>
+</head>
+
+<body class="gradient">
+    <div class="wrapper">
+    	<div class="container">
+	 		<div class="row">
+     	 		<div class="span12">
+			 		<div id="overall" class="well">
+			 			<h5>Server Unavailable</h5>
+			 			<p>@e.getMessage</p>
+			 		</div>
+		 		</div>
+	 		</div>
+		</div>
+	</div>
+	<div class="push"><!--//--></div>
+
+	<footer>
+	     <div class="container-fluid">
+	     	<div class="row">
+        		<p class="span2">Powered By <a href="http://mint.image.ece.ntua.gr/" rel="author">Mint</a>.</p>
+        	</div>
+      	</div>
+	</footer>
+</body>
+
+</html>

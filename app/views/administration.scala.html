@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <link rel="stylesheet" media="screen" href='@routes.Assets.at("css/bootstrap.min.css")'>
+    <link rel="stylesheet" media="screen" href='@routes.Assets.at("css/main.css")'>
+    <link rel="shortcut icon" type="image/png" href='@routes.Assets.at("images/favicon.png")'>
+    <script src='@routes.Assets.at("js/jquery-1.7.1.min.js")' type="text/javascript"></script>
+    <script src='@routes.Assets.at("js/bootstrap.js")' type="text/javascript"></script>
+    <script src='@routes.Assets.at("js/oaimanager.js")' type="text/javascript"></script>
+    <script src='@routes.Assets.at("js/administration.js")' type="text/javascript"></script>
+
+	<style>
+		.list > dt {
+			width: 100px;
+			margin-right: 10px;
+		}
+		
+		.list > dd {
+			margin-left: 120px;
+			margin-bottom: 5px;
+		}
+		
+		input, textarea, .uneditable-input {
+			margin-left: 0;
+			width: 400px;
+		}
+		
+		textarea {
+			height: 80px;
+		}
+		
+		button {
+			margin-right: 5px;
+		}
+	</style>
+	<script type="text/javascript">
+	  		$(document).ready(function () {
+	  			administration = new MintOAIAdministration("projects", "overall");
+	  		});
+	</script>
+</head>
+
+<body class="gradient">
+	<div class="wrapper">
+		<div class="navbar">
+			<div class="navbar-inner">
+				<a class="brand" href="#">Mint OAI Repository: Administration</a>
+			</div>
+		</div>
+		<div class="container">
+			<div class="row">
+				<div id="projects" class="well sidebar span3"></div>
+				<div id="overall" class="well content span8"></div>
+			</div>
+		</div>
+	</div>
+
+	<div class="push">
+		<!--//-->
+	</div>
+
+	<footer>
+		<div class="container-fluid">
+			<div class="row">
+				<p class="span2">
+					Powered By <a href="http://mint.image.ece.ntua.gr/" rel="author">Mint</a>.
+				</p>
+			</div>
+		</div>
+	</footer>
+</body>
+
+</html>
