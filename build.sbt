@@ -1,4 +1,4 @@
-name := """mintoai"""
+name := """mint-oai"""
 version := "1.0.0"
 scalaVersion := "2.11.7"
 
